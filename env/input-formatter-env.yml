@@ -1,0 +1,7 @@
+name: merge4pyclone
+
+channels:
+    - bioconda
+
+dependencies:
+    - pyranges==0.0.117
