@@ -1,8 +1,9 @@
 import argparse
-import csv
 import os
 from pathlib import Path
 import sys
+import pandas as pd
+from pyranges import PyRanges
 
 
 def is_valid_output_file(p, arg):
@@ -19,6 +20,15 @@ def is_valid_file(p, arg):
         return os.path.expandvars(arg)
 
 
+def get_AD_index(format_str):
+    fcols = format_str.split(":")
+    for index, col in enumerate(fcols):
+        if col == "AD":
+            return index
+
+    return None
+
+
 if __name__ == "__main__":
 
     PARSER = argparse.ArgumentParser(
@@ -28,7 +38,7 @@ if __name__ == "__main__":
 
     PARSER.add_argument(
         "--input",
-        help="TSV file listing Sample ID, Somatic SNV VCF, and CNVKit segmetrics.tsv filepath to merge (one path per line)",
+        help="TSV file listing Sample ID, Sex (eg. F or M), Somatic SNV VCF, and CNVKit segmetrics.tsv filepath to merge (one path per line)",
         type=lambda x: is_valid_file(PARSER, x),
         required=True,
         metavar="\b",
@@ -44,103 +54,120 @@ if __name__ == "__main__":
 
     ARGS = PARSER.parse_args(sys.argv[1:])
 
-    # parse HGNC file for information to convert gene symbol to EntrezGene ID
-    official_symbol_lookup = dict()
-    previous_symbols_lookup = dict()
-    with open(ARGS.hgnc) as fp:
-        for index, line in enumerate(fp):
-            if index > 0:
-                cols = line.strip().split("\t")
-                if len(cols) < 10:
-                    continue
-                official_symbol_lookup[cols[1]] = cols[9]
-                for prev_symb in cols[4].split(","):
-                    prev_symb = prev_symb.strip()
-                    previous_symbols_lookup[prev_symb] = cols[9]
+    # read in sample information
+    sample_info = pd.read_csv(ARGS.input, delimiter="\t", index_col="sample_id")
 
-    # collect the unique list of genes listed in all files to be merged
-    print("Collecting info...")
-    genes = set()
-    log2s = dict()
-    with open(ARGS.cnvs) as fp:
-        for line in fp:
-            sample_info = line.split(",")
-            sample_id = sample_info[0]
-            log2s[sample_id] = dict()
-            with open(sample_info[1].strip()) as log2fp:
-                for dataline in log2fp:
-                    if dataline.startswith("gene	chromosome"):
+    # convert CNV segments file as a PyRange for easy feature intersection lookup
+    # convert bi-allelic SNVs info into PyRange as well for intersection with CNV segments
+    print("Converting CNVs and SNVs to PyRanges...")
+    sample_cnv_segments = dict()
+    sample_snvs = dict()
+    for sample, row in sample_info.iterrows():
+        # process CNV segments
+        tempdf = pd.read_csv(row.cnv_segments, delimiter="\t", index_col=False)
+        # rename columns to make pyranges object
+        tempdf.rename(
+            columns={"chromosome": "Chromosome", "start": "Start", "end": "End"},
+            inplace=True,
+        )
+        sample_cnv_segments[sample] = PyRanges(tempdf)
+
+        # process SNVs from VCF file
+        sample_snvs[sample] = dict()
+        with open(row.somatic_vcf, "rt") as snvs_fp:
+            normal_sample_col = 9
+            somatic_sample_col = 10
+            for line in snvs_fp:
+                if line.startswith("#"):
+                    if not line.startswith("#CHROM"):
                         continue
-
-                    cols = dataline.split("\t")
-                    genes.add(cols[0])
-                    log2s[sample_id][cols[0]] = cols[4]
-
-    if ARGS.purecn:
-        with open(ARGS.purecn) as fp:
-            for line in fp:
-                sample_info = line.split(",")
-                sample_id = sample_info[0]
-                log2s[sample_id] = dict()
-                with open(sample_info[1].strip(), newline="") as log2fp:
-                    reader = csv.DictReader(log2fp)
-                    for row in reader:
-                        genes.add(row["symbol"])
-                        if row["cn_category"] == "Amplification":
-                            log2s[sample_id][row["symbol"]] = 2
-                        elif row["cn_category"] == "Gain":
-                            log2s[sample_id][row["symbol"]] = 1
-                        elif row["cn_category"] == "Neutral":
-                            log2s[sample_id][row["symbol"]] = 0
-                        elif row["cn_category"] == "Loss":
-                            log2s[sample_id][row["symbol"]] = -1
-                        else:
-                            log2s[sample_id][row["symbol"]] = -2
-
-    print("Merging continuous and descrete values...")
-    # following guidelines listed in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8312221/ we can provide a descrete
-    # value for CNV changes that may work better with cBioPortal via the following setup:
-    # -> continuous values lower than −2.0 were listed as homozygous deletions (HOMDEL)
-    # -> values between −2.0 and −1.0 were listed as hemizygous deletions (HETLOSS)
-    # -> values between 1.0 and 2.0 were declared amplifications (GAIN),
-    # -> values more than 2.0 multiple amplifications (AMP).
-    # -> value was between −1.0 and 1.0 were declared diploid samples (DIPLOID), meaning they have no changes in the number of gene copies
-    #
-    # these values correspond with what cbioportal can use
-    with open(ARGS.output_disc, "wt") as out_disc:
-        with open(ARGS.output_cont, "wt") as out_cont:
-            # print header information, cbioportal specific
-            sample_keys = sorted(list(log2s.keys()))
-            out_disc.write("Hugo_Symbol\tEntrez_Gene_Id\t" + "\t".join(sample_keys))
-            out_cont.write("Hugo_Symbol\tEntrez_Gene_Id\t" + "\t".join(sample_keys))
-            for gene in sorted(genes):
-                out_cont.write("\n")
-                out_disc.write("\n")
-                gene_id = ""
-                if gene in official_symbol_lookup.keys():
-                    gene_id = official_symbol_lookup[gene]
-                elif gene in previous_symbols_lookup.keys():
-                    gene_id = previous_symbols_lookup[gene]
-
-                out_disc.write(gene + "\t" + gene_id)
-                out_cont.write(gene + "\t" + gene_id)
-                for sample_id in sample_keys:
-                    if gene in log2s[sample_id].keys():
-                        out_cont.write("\t" + str(log2s[sample_id][gene]))
-                        log2 = float(log2s[sample_id][gene])
-                        if log2 <= -2:
-                            out_disc.write("\t-2")
-                        elif log2 > -2 and log2 <= -1:
-                            out_disc.write("\t-1")
-                        elif log2 > -1 and log2 < 1:
-                            out_disc.write("\t0")
-                        elif log2 >= 1 and log2 < 2:
-                            out_disc.write("\t1")
-                        else:
-                            out_disc.write("\t2")
-
                     else:
-                        out_cont.write("\tNA")
-                        out_disc.write("\tNA")
+                        cols = line.rstrip().split("\t")
+                        normal_sample_col = cols.index(row.normal_id)
+                        somatic_sample_col = cols.index(str(sample))
 
-    print(f"Done. Outputs have been merged!")
+                vcfcols = line.rstrip().split("\t")
+                # skip multiallelic sites as CNVKit doesn't use them for calculation
+                if "," in vcfcols[4]:
+                    continue
+
+                ad_index = get_AD_index(vcfcols[8])
+                if ad_index:
+                    # check if variant info pulled from somatic variant, else pull counts from the germline variant
+                    ad_info = vcfcols[9].split(":")[ad_index].split(",")
+                    variant_tuple = (vcfcols[0], vcfcols[1], vcfcols[3], vcfcols[4])
+                    sample_snvs[sample][variant_tuple] = {
+                        "mutation_id": "_".join(variant_tuple),
+                        "ref_counts": int(ad_info[0]),
+                        "alt_counts": int(ad_info[1]),
+                        "Chromosome": vcfcols[0],
+                        "Start": int(vcfcols[1]),
+                        "End": int(vcfcols[1]),
+                    }
+
+    # create a list of unique variant entries to fill in SNV counts with zeros
+    # i.e., PyClone-Vi requires that all samples have all variants listed even if the variant wasn't called in the
+    # given sample so we need to add those variants to a sample with values of zero to prevent in from pre-filtering
+    # them out and not using for analysis
+    var_set = set()  # makes unique set of Chromosome, Start tuples
+    for snvs_dict in sample_snvs.values():
+        var_set.update(snvs_dict.keys())
+
+    for variant_tuple in var_set:
+        for snv_dict in sample_snvs:
+            if variant_tuple not in snv_dict:
+                snv_dict[variant_tuple] = {
+                    "mutation_id": "_".join(variant_tuple),
+                    "ref_counts": 0,
+                    "alt_counts": 0,
+                    "Chromosome": variant_tuple[0],
+                    "Start": int(variant_tuple[1]),
+                    "End": int(variant_tuple[1]),
+                }
+
+    # join the CNV and SNV PyRanges for each sample (i.e. match overlapping CNV segment with a SNV)
+    # see https://github.com/Roth-Lab/pyclone-vi#input-format for description of the PyClone-VI format we are writing out
+    print("Joining CNV and SNV PyRanges for each sample and formatting columns...")
+    sample_overlaps = dict()
+    sex_chroms = {"chrX", "X", "chrY", "Y"}
+    mut_df = None
+    for sample in sample_snvs.keys():
+        # join the PyRanges, then just work with the Pandas dataframe
+        joined_df = (
+            PyRanges(pd.DataFrame(sample_snvs))
+            .join(sample_cnv_segments[sample], suffix="_cnv")
+            .df
+        )
+        # add the sample ID as a column
+        joined_df["sample_id"] = sample
+        # add normal copy number values, 2 if Female, 1 on sex chromosomes if Male
+        if sample_info.loc[[sample]].Sex == "F":
+            joined_df["normal_cn"] = 2
+        else:
+            joined_df["normal_cn"] = joined_df.apply(
+                lambda row: 1 if row["Chromosome"] in sex_chroms else 2, axis=1
+            )
+        # rename columns needed for output
+        joined_df.rename(
+            columns={"cn1_cnv": "major_cn", "cn2_cnv": "minor_cn"}, inplace=True
+        )
+
+        # append or setup results
+        if not mut_df:
+            mut_df = joined_df
+        else:
+            mut_df = pd.concat([mut_df, joined_df], ignore_index=True)
+
+    print("Writing output...")
+    columns = [
+        "mutation_id",
+        "sample_id",
+        "ref_counts",
+        "alt_counts",
+        "major_cn",
+        "minor_cn",
+        "normal_cn",
+    ]
+    mut_df.to_csv(ARGS.output, sep="\t", index=False, columns=columns)
+
+    print("Done. Outputs have been formatted and merged!")

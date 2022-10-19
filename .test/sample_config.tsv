@@ -1,2 +1,2 @@
-sample_id	somatic_vcf	cnv_segments
-LW001299	/Users/bwilk/Documents/Projects/PVP/clonal_population_detection/LW001299.tumor-normal.somatic.bi-allelic-snvs.vcf.gz	/Users/bwilk/Documents/Projects/PVP/cnvs/LW001299/segmetrics.tsv
+sample_id   normal_id	sex	somatic_vcf	cnv_segments
+LW001299    LW001298	F	/Users/bwilk/Documents/Projects/PVP/clonal_population_detection/LW001299.filtered-for-cnv-allelic-calls.vcf	/Users/bwilk/Documents/Projects/PVP/cnvs/LW001299/segmetrics.tsv
