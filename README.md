@@ -18,15 +18,14 @@ Tested with the following command to first explore if and how the tools worked a
 Directory where work with PyClone-VI is being done: /Users/bwilk/Documents/Projects/PVP/clonal_population_detection
 **Data from analysis subject to move to permanent location eventually and this note will be updated**
 
-```sh
-pyclone-vi fit -i /Users/bwilk/Documents/Projects/PVP/clonal_population_detection/chorangioma-pyclonevi-input.tsv -o chorangioma-pyclonevi-fit.h5 -c 40 -d beta-binomial -r 10
-pyclone-vi write-results-file -i chorangioma-pyclonevi-fit.h5 -o chorangioma-pyclonevi-clonal-prediction.tsv
-```
-
-Running of PyClone-VI after reading into the various parameters and a few reviews from the tool authors as well as the
-review paper originally leading to use of PyClone-VI:
+Review article information indicated that the tool should be run with both the binomial and beta-binomial distributions
+used for analysis. I'm still not sure if CNVs matter for Chorangioma analysis as there does not appear to be major CNV
+alterations detected in the tissue. The number of clusters and restarts was recommended by a combination of review
+articles testing multiple tools and documenation from the authors.
 
 ```sh
-pyclone-vi fit -i /Users/bwilk/Documents/Projects/PVP/clonal_population_detection/chorangioma-pyclonevi-input.tsv -o chorangioma-pyclonevi-binomial-100restarts-fit.h5 -c 40 -d binomial -r 100
-pyclone-vi write-results-file -i chorangioma-pyclonevi-binomial-100restarts-fit.h5 -o chorangioma-pyclonevi-binomial-100restarts-clonal-prediction.tsv
+pyclone-vi fit -i chorangioma-pyclonevi-input.tsv -o chorangioma-pyclonevi-betabi-fit.h5 -c 10 -d beta-binomial -r 100
+pyclone-vi fit -i chorangioma-pyclonevi-input.tsv -o chorangioma-pyclonevi-binomial-fit.h5 -c 10 -d binomial -r 100
+pyclone-vi write-results-file -i chorangioma-pyclonevi-betabi-fit.h5 -o chorangioma-pyclonevi-betabi-clonal-prediction.tsv
+pyclone-vi write-results-file -i chorangioma-pyclonevi-binomial-fit.h5 -o chorangioma-pyclonevi-binomial-clonal-prediction.tsv
 ```
