@@ -11,6 +11,28 @@ Required Inputs:
 
 Example sample config file for specifying merging criteria: [sample_config.tsv](.test/sample_config.tsv)
 
+### Formmating SNVs
+
+SNVs for clonal analysis were prefiltered for removal of FFPE artifact variants, PASSing filter status from Mutect2, and
+those where confidence in the call could be accertained (i.e., coverage and read support exceeded sequencing error
+rate). Bialleleic SNV sites in the samples were obtained by using BCFTools following information in the
+[BCFTools view command filter docs](https://samtools.github.io/bcftools/bcftools.html#view). Specific commands:
+
+```sh
+bcftools view -m2 -M2 -v snps -o LW001298.biallelic.mutect2.ideafix.PASS.hi-conf.vcf.gz LW001298.mutect2.ideafix.PASS.hi-conf.vcf.gz
+bcftools view -m2 -M2 -v snps -o LW001299.biallelic.mutect2.ideafix.PASS.hi-conf.vcf.gz LW001299.mutect2.ideafix.PASS.hi-conf.vcf.gz
+```
+
+Resulting biallelic SNV VCF files are included in the [PyclonVI input dirctroy](data/pyclone-input).
+
+### Merging inputs for PyCloneVI
+
+```sh
+conda activate merge4pyclone
+```
+
+
+
 ## Running the tool
 
 Tested with the following command to first explore if and how the tools worked and the output:

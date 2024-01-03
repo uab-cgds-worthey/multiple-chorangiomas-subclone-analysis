@@ -1,2 +1,3 @@
 sample_id	normal_id	sex	somatic_vcf	cnv_segments
-LW001299	LW001298	F	/Users/bwilk/Documents/Projects/PVP/clonal_population_detection/LW001299.filtered-for-cnv-allelic-calls.vcf	/Users/bwilk/Documents/Projects/PVP/cnvs/LW001299/segmetrics.tsv
+LW001298	LW001696	F	data/pyclone-input/LW001298.biallelic.mutect2.ideafix.PASS.hi-conf.vcf.gz	data/pyclone-input/LW001298_cnvkit_segmetrics.tsv
+LW001299	LW001696	F	data/pyclone-input/LW001299.biallelic.mutect2.ideafix.PASS.hi-conf.vcf.gz	data/pyclone-input/LW001299_cnvkit_segmetrics.tsv

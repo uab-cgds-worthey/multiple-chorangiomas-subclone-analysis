@@ -1,4 +1,5 @@
 import argparse
+import gzip
 import os
 from pathlib import Path
 import sys
@@ -31,7 +32,7 @@ def get_AD_index(format_str):
 
 def read_muts_from_vcf(vcf, sample_id, normal_id):
     mut_dict = dict()
-    with open(vcf, "rt") as snvs_fp:
+    with open(vcf, "rt") if vcf.endswith(".vcf") else gzip.open(vcf, "rt") as snvs_fp:
         normal_sample_col = 9
         somatic_sample_col = 10
         for line in snvs_fp:
@@ -68,24 +69,26 @@ def read_muts_from_vcf(vcf, sample_id, normal_id):
 
 
 if __name__ == "__main__":
-
     PARSER = argparse.ArgumentParser(
-        description="Merge CNV gene information output from CNVkit for cbioportal loading",
+        description="Merge CNV and somatic biallelic SNV information together for input into PyCloneVI",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     PARSER.add_argument(
         "--input",
-        help="TSV file listing Sample ID, Sex (eg. F or M), Somatic SNV VCF, and CNVKit segmetrics.tsv filepath to merge (one path per line)",
+        help=(
+            "TSV file listing Sample ID, Sex (eg. F or M), Somatic SNV VCF, CNVKit segmetrics.tsv filepath, and "
+            "merged results output filepath (one sample per line)"
+        ),
         type=lambda x: is_valid_file(PARSER, x),
-        required=True,
+        default=".test/sample_config.tsv",
         metavar="\b",
     )
 
     PARSER.add_argument(
         "--output",
         help="output file path to write merged PyClone-VI input file to",
-        default="merged_snvs_cnvs_pyclone.txt",
+        default="data/pyclone-input/merged_snvs_cnvs_pyclone.txt",
         type=lambda x: is_valid_output_file(PARSER, x),
         metavar="\b",
     )
@@ -93,7 +96,9 @@ if __name__ == "__main__":
     ARGS = PARSER.parse_args(sys.argv[1:])
 
     # read in sample information
-    sample_info = pd.read_csv(ARGS.input, delimiter="\t", index_col="sample_id", header=0)
+    sample_info = pd.read_csv(
+        ARGS.input, delimiter="\t", index_col="sample_id", header=0
+    )
 
     # convert CNV segments file as a PyRange for easy feature intersection lookup
     # convert bi-allelic SNVs info into PyRange as well for intersection with CNV segments
@@ -102,7 +107,9 @@ if __name__ == "__main__":
     sample_snvs = dict()
     for sample_id, row in sample_info.iterrows():
         # process CNV segments
-        tempdf = pd.read_csv(row["cnv_segments"], delimiter="\t", index_col=False, header=0)
+        tempdf = pd.read_csv(
+            row["cnv_segments"], delimiter="\t", index_col=False, header=0
+        )
         # rename columns to make pyranges object
         tempdf.rename(
             columns={"chromosome": "Chromosome", "start": "Start", "end": "End"},
@@ -111,8 +118,10 @@ if __name__ == "__main__":
         sample_cnv_segments[sample_id] = PyRanges(tempdf)
 
         # process SNVs from VCF file
-        sample_snvs[sample_id] = read_muts_from_vcf(row["somatic_vcf"], sample_id, row["normal_id"])
-        
+        sample_snvs[sample_id] = read_muts_from_vcf(
+            row["somatic_vcf"], sample_id, row["normal_id"]
+        )
+
     # create a list of unique variant entries to fill in SNV counts with zeros
     # i.e., PyClone-Vi requires that all samples have all variants listed even if the variant wasn't called in the
     # given sample so we need to add those variants to a sample with values of zero to prevent in from pre-filtering
@@ -148,9 +157,11 @@ if __name__ == "__main__":
         )
         # drop chrY values b/c they confound analysis when cohort has a mix of males and females
         # Get indexes where name column has value john
-        indexNames = joined_df[(joined_df['Chromosome'] == 'chrY') | (joined_df['Chromosome'] == 'Y')].index
+        indexNames = joined_df[
+            (joined_df["Chromosome"] == "chrY") | (joined_df["Chromosome"] == "Y")
+        ].index
         # Delete these row indexes from dataFrame
-        joined_df.drop(indexNames , inplace=True)
+        joined_df.drop(indexNames, inplace=True)
         # add the sample ID as a column
         joined_df["sample_id"] = sample
         # add normal copy number values, 2 if Female, 1 on sex chromosomes if Male
@@ -161,11 +172,9 @@ if __name__ == "__main__":
                 lambda row: 1 if row["Chromosome"] in sex_chroms else 2, axis=1
             )
         # rename columns needed for output
-        joined_df.rename(
-            columns={"cn1": "major_cn", "cn2": "minor_cn"}, inplace=True
-        )
+        joined_df.rename(columns={"cn1": "major_cn", "cn2": "minor_cn"}, inplace=True)
         # only keep rows where allele specific copy number info is available
-        joined_df = joined_df[joined_df['major_cn'].notna()]
+        joined_df = joined_df[joined_df["major_cn"].notna()]
         # ensure copy numbers are repesented in the output as ints
         joined_df["major_cn"] = joined_df["major_cn"].astype(int)
         joined_df["minor_cn"] = joined_df["minor_cn"].astype(int)
