@@ -55,9 +55,9 @@ def read_muts_from_vcf(vcf, sample_id, normal_id):
                 ad_info = vcfcols[somatic_sample_col].split(":")[ad_index].split(",")
                 if ad_info[1] in [".", "0"]:
                     ad_info = vcfcols[normal_sample_col].split(":")[ad_index].split(",")
-                variant_tuple = (vcfcols[0], vcfcols[1], vcfcols[3], vcfcols[4])
-                mut_dict[variant_tuple] = {
-                    "mutation_id": "_".join(variant_tuple),
+                var_tuple = (vcfcols[0], vcfcols[1], vcfcols[3], vcfcols[4])
+                mut_dict[var_tuple] = {
+                    "mutation_id": "_".join(var_tuple),
                     "ref_counts": int(ad_info[0]),
                     "alt_counts": int(ad_info[1]),
                     "Chromosome": vcfcols[0],
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
     # create a list of unique variant entries to fill in SNV counts with zeros
     # i.e., PyClone-Vi requires that all samples have all variants listed even if the variant wasn't called in the
-    # given sample so we need to add those variants to a sample with values of zero to prevent in from pre-filtering
+    # given sample so we need to add those variants to a sample with values of zero to prevent it from pre-filtering
     # them out and not using for analysis
     var_set = set()  # makes unique set of Chromosome, Start tuples
     for snvs_dict in sample_snvs.values():
@@ -148,10 +148,10 @@ if __name__ == "__main__":
     sample_overlaps = dict()
     sex_chroms = {"chrX", "X", "chrY", "Y"}
     mut_df = None
-    for sample in sample_snvs.keys():
+    for sample, variants in sample_snvs.items():
         # join the PyRanges, then just work with the Pandas dataframe
         joined_df = (
-            PyRanges(pd.DataFrame.from_dict(sample_snvs[sample].values()))
+            PyRanges(pd.DataFrame.from_dict(variants.values()))
             .join(sample_cnv_segments[sample], suffix="_cnv")
             .df
         )
@@ -180,7 +180,7 @@ if __name__ == "__main__":
         joined_df["minor_cn"] = joined_df["minor_cn"].astype(int)
 
         # append or setup results
-        if not mut_df:
+        if mut_df is None:
             mut_df = joined_df
         else:
             mut_df = pd.concat([mut_df, joined_df], ignore_index=True)
