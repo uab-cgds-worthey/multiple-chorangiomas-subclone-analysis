@@ -1,0 +1,169 @@
+# Clonal Evolution analysis using ClonEvol
+
+The following uses outputs from PyClone-VI to build a phylogenetic tree of the evolutionary pattern of clonal populaitons
+in the chroangioma from the PVP project. This follows the instructions set forth by the ClonEvol authors in their
+setup and use guide.
+
+### Load in libraries
+```{r message=FALSE, warning=FALSE}
+install.packages("devtools", repos = "https://mirror.las.iastate.edu/CRAN/")
+library(devtools)
+install_github("hdng/clonevol")
+install_github("hdng/trees")
+install.packages("gridBase")
+install.packages("gridExtra")
+install.packages("ggplot2")
+install.packages("igraph", type = "binary")
+install.packages("packcircles")
+```
+
+## Workflow
+
+From the authors docs the workflow of mapping the clonal evolution are:
+
+  1. Preparing a comprehensive and reliable set of somatic mutations
+  2. Clustering the mutations based on cellular prevalence
+  3. Evaluating the clustering results
+  4. Inferring clonal evolution trees (ie. clonal ordering)
+  5. Visualizing data and clonal evolution trees
+  6. Interpreting the results
+
+Steps 1 and 2 are already already completed using Mutect2, CNVkit, and PyClone-VI. ClonEvol will be helping with
+steps 3 thorugh 6.
+
+## Analysis
+
+### Data Prep
+
+After reviewing the parameters for PyClone-VI and the outputs we'll be analyzing the clusters produced from the binomial
+distribution. The authors of ClonEvol note: ClonEvol requires an input data frame consisting of at least a cluster
+column and one or more variant cellular prevalence columns, each corresponds to a sample.
+The cluster should be named by contiguous integer numbers, starting from 1. For better
+visualization, the names of the cellular prevalence columns should be short.
+
+Note from PyClone-VI authors: the column labeled "cellular_prevalence" = Proportion of malignant cells with the 
+mutation in the sample. This is also called cancer cell fraction (CCF) in the literature.
+
+```{r}
+library(clonevol)
+df <- read.table(file = "data/pyclone-output/pvp-pyclonevi-binomial-clonal-prediction.tsv", header = TRUE, sep = "\t")
+```
+
+
+ClonEvol expects cluster IDs to be integer values starting at 1, however PyClone-VI starts cluster IDs at zero so we
+need to increase each cluster ID by 1 before we can generate inference. Guessing from the ClonEvol demo data we also
+need to convert the CCF info from a decimal fraction to a percent, and possibly include depth information :shrug:
+
+```{r}
+df$cluster_id <- df$cluster_id + 1
+df$cpp <- df$cellular_prevalence * 100
+
+# convert dataframe to state where cellular prevalence is a column for each sample
+# and drop unused columns
+data_list <- split(df, f = df$sample_id)
+df <- df[c("mutation_id", "cluster_id")]
+sids <- names(data_list)
+for (sid in sids) {
+  df[[sid]] <- data_list[[sid]]$cpp[match(df$mutation_id, data_list[[sid]]$mutation_id)]
+}
+```
+
+Another modification is required before processing b/c despite saying they can take other column names for the cluster ID
+a known and unfixed issue has been logged https://github.com/hdng/clonevol/issues/40 with the exact problem I initially
+ran into. Hence we need to rename the `cluster_id` column to `cluster`, the expected default name, before doing analysis.
+
+```{r}
+colnames(df)[which(names(df) == "cluster_id")] <- "cluster"
+```
+
+Another unfortunate bug was found working with ClonEvol, thank goodness for FOSS and issue tracking on GitHub!
+This issue occurs when trying to run in single sample mode, the author of the tool notes that at some point they
+stopped supporting a single sample mode explicitly and suggest just making a fake duplicate sample to satisfy the
+tool and run the analysis. See https://github.com/hdng/clonevol/issues/38 for the full write up. The major interest
+in this project is the clonal evolution of the chorangioma tissue so focus will simply be on that sample
+
+```{r}
+df$D <- df$LW001299
+```
+
+## Ordering and Tree building
+
+Since we used PyClone-VI to estimate copy number corrected CCF values we can provide the corrected CCF to ClonEvol via 
+`ccf.col.names` parameter in `infer.clonal.models` function:
+
+```{r}
+# set ClonEvol to the cluster colors desired, NULL indicates that ClonEvol will auto pick colors for us
+clone.colors <- c("#f94144","#f3722c","#f9c74f","#a8aa9f","#43aa8b","#577590")
+
+y <- infer.clonal.models(
+  variants = df,
+  cluster.col.name = "cluster",
+  ccf.col.names = c("LW001299", "D"),
+  cancer.initiation.model = "polyclonal",
+  subclonal.test = "bootstrap",
+  subclonal.test.model = "non-parametric",
+  num.boots = 1000,
+  founding.cluster = 1,
+  cluster.center = "mean",
+  ignore.clusters = NULL,
+  clone.colors = clone.colors,
+  min.cluster.vaf = 0.01,
+  # min probability that CCF(clone) is non-negative
+  sum.p = 0.05,
+  # alpha level in confidence interval estimate for CCF(clone)
+  alpha = 0.05
+)
+
+y <- convert.consensus.tree.clone.to.branch(y, branch.scale = "sqrt")
+
+plot.clonal.models(
+  y,
+  # box plot parameters
+  box.plot = TRUE,
+  fancy.boxplot = TRUE,
+  fancy.variant.boxplot.jitter.alpha = 1,
+  fancy.variant.boxplot.jitter.center.color = "grey50",
+  fancy.variant.boxplot.base_size = 12,
+  fancy.variant.boxplot.plot.margin = 1,
+  fancy.variant.boxplot.vaf.suffix = ".CCF",
+  # bell plot parameters
+  clone.shape = "bell",
+  bell.event = TRUE,
+  bell.event.label.color = "blue",
+  bell.event.label.angle = 60,
+  clone.time.step.scale = 1,
+  bell.curve.step = 2,
+  # node-based consensus tree parameters
+  merged.tree.plot = TRUE,
+  tree.node.label.split.character = NULL,
+  tree.node.shape = "circle",
+  tree.node.size = 30,
+  tree.node.text.size = 0.5,
+  merged.tree.node.size.scale = 1.25,
+  merged.tree.node.text.size.scale = 1.5,
+  merged.tree.cell.frac.ci = FALSE,
+  # branch-based consensus tree parameters
+  merged.tree.clone.as.branch = FALSE,
+  # cellular population parameters
+  cell.plot = TRUE,
+  num.cells = 200,
+  cell.border.size = 0.25,
+  cell.border.color = "black",
+  clone.grouping = "horizontal",
+  # meta-parameters
+  scale.monoclonal.cell.frac = TRUE,
+  show.score = FALSE,
+  cell.frac.ci = TRUE,
+  disable.cell.frac = FALSE,
+  # output figure parameters
+  out.dir = "data/clonevol-output",
+  out.format = "pdf",
+  overwrite.output = TRUE,
+  width = 18,
+  height = 10,
+  # vector of width scales for each panel from left to right
+  panel.widths = c(3, 5, 5, 5)
+)
+
+print("Done")
+```
