@@ -46,7 +46,8 @@ mutation in the sample. This is also called cancer cell fraction (CCF) in the li
 
 ```{r}
 library(clonevol)
-df <- read.table(file = "data/pyclone-output/pvp-pyclonevi-binomial-clonal-prediction.tsv", header = TRUE, sep = "\t")
+#df <- read.table(file = "data/pyclone-output/pvp-pyclonevi-binomial-clonal-prediction.tsv", header = TRUE, sep = "\t")
+df <- read.table(file = "data/pyclone-output/pvp-pyclonevi-betabi-clonal-prediction.tsv", header = TRUE, sep = "\t")
 ```
 
 
@@ -93,13 +94,21 @@ Since we used PyClone-VI to estimate copy number corrected CCF values we can pro
 
 ```{r}
 # set ClonEvol to the cluster colors desired, NULL indicates that ClonEvol will auto pick colors for us
-clone.colors <- c("#f94144","#f3722c","#f9c74f","#a8aa9f","#43aa8b","#577590")
+clone.colors <- c("#f3722c","#43aa8b","#f9c74f","#577590")
+
+# fix cluster ordering for the model so founding clone is always labeled as 1
+# see https://github.com/hdng/clonevol/issues/7#issuecomment-382786214
+c3 = df$cluster == 4
+c1 = df$cluster == 1
+df$cluster[c1] = 4
+df$cluster[c3] = 1
+df = df[order(df$cluster),]
 
 y <- infer.clonal.models(
   variants = df,
   cluster.col.name = "cluster",
   ccf.col.names = c("LW001299", "D"),
-  cancer.initiation.model = "polyclonal",
+  cancer.initiation.model = "monoclonal",
   subclonal.test = "bootstrap",
   subclonal.test.model = "non-parametric",
   num.boots = 1000,
@@ -114,10 +123,15 @@ y <- infer.clonal.models(
   alpha = 0.05
 )
 
-y <- convert.consensus.tree.clone.to.branch(y, branch.scale = "sqrt")
+y <- convert.consensus.tree.clone.to.branch(y, branch.scale = "log2")
+```
 
+Plot the evolution dynamics in a PDF
+
+```{r}
 plot.clonal.models(
   y,
+  disable.sample.label=TRUE,
   # box plot parameters
   box.plot = TRUE,
   fancy.boxplot = TRUE,
@@ -125,16 +139,16 @@ plot.clonal.models(
   fancy.variant.boxplot.jitter.center.color = "grey50",
   fancy.variant.boxplot.base_size = 12,
   fancy.variant.boxplot.plot.margin = 1,
-  fancy.variant.boxplot.vaf.suffix = ".CCF",
+  fancy.variant.boxplot.vaf.suffix = " Cellular Fraction",
   # bell plot parameters
   clone.shape = "bell",
   bell.event = TRUE,
   bell.event.label.color = "blue",
   bell.event.label.angle = 60,
-  clone.time.step.scale = 1,
-  bell.curve.step = 2,
+  clone.time.step.scale = 1.25,
+  bell.curve.step = 1,
   # node-based consensus tree parameters
-  merged.tree.plot = TRUE,
+  merged.tree.plot = FALSE,
   tree.node.label.split.character = NULL,
   tree.node.shape = "circle",
   tree.node.size = 30,
@@ -143,7 +157,13 @@ plot.clonal.models(
   merged.tree.node.text.size.scale = 1.5,
   merged.tree.cell.frac.ci = FALSE,
   # branch-based consensus tree parameters
-  merged.tree.clone.as.branch = FALSE,
+  merged.tree.clone.as.branch = TRUE,
+  mtcab.event.sep.char = ',',
+  mtcab.branch.text.size = 1,
+  mtcab.branch.width = 0.25,
+  mtcab.node.size = 6,
+  mtcab.node.label.size = 2,
+  mtcab.node.text.size = 1,
   # cellular population parameters
   cell.plot = TRUE,
   num.cells = 200,
@@ -159,10 +179,10 @@ plot.clonal.models(
   out.dir = "data/clonevol-output",
   out.format = "pdf",
   overwrite.output = TRUE,
-  width = 18,
+  width = 16,
   height = 10,
   # vector of width scales for each panel from left to right
-  panel.widths = c(3, 5, 5, 5)
+  panel.widths = c(3, 5, 4, 4)
 )
 
 print("Done")
