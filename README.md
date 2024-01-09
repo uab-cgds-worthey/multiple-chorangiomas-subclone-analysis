@@ -44,6 +44,12 @@ Required Inputs:
 
 Example sample config file for specifying merging criteria: [sample_config.tsv](.test/sample_config.tsv)
 
+## Copy-Number-aware clonal clustering using PyClone-VI
+
+[PyClone-VI](https://github.com/Roth-Lab/pyclone-vi) is a faster update of PyClone which is used to infer clonal
+population structure from genome sequencing data. It uses genome-wide CNV information as well as biallelic somatic SNVs
+(and varaint allele fractions) to infer the clonal architecure of the tissue sample.
+
 ### Formmating SNVs
 
 SNVs for clonal analysis were prefiltered for removal of FFPE artifact variants, `PASS` filter status from Mutect2, and
@@ -75,7 +81,7 @@ python format_pyclone_input.py
 It'll produce the output file [merged_snvs_cnvs_pyclone.txt](data/pyclone-input/merged_snvs_cnvs_pyclone.txt) ready for
 PyClone-VI analysis.
 
-## Run PyClone-VI
+### Run PyClone-VI
 
 Review article information indicated that the tool should be run with both the binomial and beta-binomial distributions
 used for analysis. The number of clusters and restarts was recommended by a combination of review articles testing
@@ -108,19 +114,91 @@ models predicted from the somatic variant data.
 All required libraries are defined at the top of the R markdown and can be run to setup the analysis but the specific
 versions used for producing output in this repo are defined below:
 
-- R version 4.2.1
-  - attached base packages
-    - stats graphics grDevices utils datasets methods base
-  - other attached packages
-    - clonevol_0.99.11 devtools_2.4.5 usethis_2.1.6
-  - loaded via a namespace (and not attached)
-    - tidyselect_1.2.0 xfun_0.32 remotes_2.4.2 purrr_1.0.1 generics_0.1.3 colorspace_2.0-3 vctrs_0.6.2 miniUI_0.1.1.1
-    - htmltools_0.5.3 yaml_2.3.5 utf8_1.2.3 rlang_1.1.1 pkgbuild_1.3.1 later_1.3.0 urlchecker_1.0.1 pillar_1.9.0
-    - glue_1.6.2 sessioninfo_1.2.2 lifecycle_1.0.3 stringr_1.5.0 munsell_0.5.0 gtable_0.3.1 htmlwidgets_1.5.4
-      memoise_2.0.1
-    - evaluate_0.23 knitr_1.39 callr_3.7.3 fastmap_1.1.0 httpuv_1.6.5 ps_1.7.5 curl_4.3.2 fansi_1.0.4
-    - Rcpp_1.0.9 xtable_1.8-4 promises_1.2.0.1 scales_1.2.1 cachem_1.0.6 pkgload_1.3.3 mime_0.12 fs_1.5.2
-    - ggplot2_3.4.4 digest_0.6.33 stringi_1.7.12 processx_3.8.3 dplyr_1.1.2 shiny_1.7.2 grid_4.2.1 cli_3.6.1
-    - tools_4.2.1 magrittr_2.0.3 tibble_3.2.1 profvis_0.3.7 crayon_1.5.1 pkgconfig_2.0.3 ellipsis_0.3.2
-      prettyunits_1.1.1
-    - rmarkdown_2.14 rstudioapi_0.13 R6_2.5.1 compiler_4.2.1
+```
+─ Session info ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+ setting  value
+ version  R version 4.2.1 (2022-06-23)
+ os       macOS 14.2.1
+ system   x86_64, darwin17.0
+ ui       RStudio
+ language (EN)
+ collate  en_US.UTF-8
+ ctype    en_US.UTF-8
+ tz       America/Chicago
+ date     2024-01-09
+ rstudio  2023.03.0+386 Cherry Blossom (desktop)
+ pandoc   2.19.2 @ /Applications/RStudio.app/Contents/Resources/app/quarto/bin/tools/ (via rmarkdown)
+
+─ Packages ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ package     * version date (UTC) lib source
+ cachem        1.0.6   2021-08-19 [1] CRAN (R 4.2.0)
+ callr         3.7.3   2022-11-02 [1] CRAN (R 4.2.0)
+ cli           3.6.1   2023-03-23 [1] CRAN (R 4.2.0)
+ clonevol    * 0.99.11 2022-11-02 [1] Github (hdng/clonevol@7aff737)
+ colorspace    2.0-3   2022-02-21 [1] CRAN (R 4.2.0)
+ crayon        1.5.1   2022-03-26 [1] CRAN (R 4.2.0)
+ devtools      2.4.5   2022-10-11 [1] CRAN (R 4.2.0)
+ digest        0.6.33  2023-07-07 [1] CRAN (R 4.2.0)
+ dplyr         1.1.2   2023-04-20 [1] CRAN (R 4.2.0)
+ ellipsis      0.3.2   2021-04-29 [1] CRAN (R 4.2.0)
+ evaluate      0.23    2023-11-01 [1] CRAN (R 4.2.0)
+ fansi         1.0.4   2023-01-22 [1] CRAN (R 4.2.0)
+ farver        2.1.1   2022-07-06 [1] CRAN (R 4.2.0)
+ fastmap       1.1.0   2021-01-25 [1] CRAN (R 4.2.0)
+ fs            1.5.2   2021-12-08 [1] CRAN (R 4.2.0)
+ generics      0.1.3   2022-07-05 [1] CRAN (R 4.2.0)
+ ggplot2     * 3.4.4   2023-10-12 [1] CRAN (R 4.2.0)
+ glue          1.6.2   2022-02-24 [1] CRAN (R 4.2.0)
+ gridBase    * 0.4-7   2014-02-24 [1] CRAN (R 4.2.0)
+ gridExtra   * 2.3     2017-09-09 [1] CRAN (R 4.2.0)
+ gtable        0.3.1   2022-09-01 [1] CRAN (R 4.2.0)
+ htmltools     0.5.3   2022-07-18 [1] CRAN (R 4.2.0)
+ htmlwidgets   1.5.4   2021-09-08 [1] CRAN (R 4.2.0)
+ httpuv        1.6.5   2022-01-05 [1] CRAN (R 4.2.0)
+ igraph      * 1.5.1   2023-08-10 [1] CRAN (R 4.2.0)
+ knitr         1.39    2022-04-26 [1] CRAN (R 4.2.0)
+ labeling      0.4.2   2020-10-20 [1] CRAN (R 4.2.0)
+ later         1.3.0   2021-08-18 [1] CRAN (R 4.2.0)
+ lifecycle     1.0.3   2022-10-07 [1] CRAN (R 4.2.0)
+ magrittr      2.0.3   2022-03-30 [1] CRAN (R 4.2.0)
+ memoise       2.0.1   2021-11-26 [1] CRAN (R 4.2.0)
+ mime          0.12    2021-09-28 [1] CRAN (R 4.2.0)
+ miniUI        0.1.1.1 2018-05-18 [1] CRAN (R 4.2.0)
+ munsell       0.5.0   2018-06-12 [1] CRAN (R 4.2.0)
+ packcircles * 0.3.6   2023-09-08 [1] CRAN (R 4.2.0)
+ pillar        1.9.0   2023-03-22 [1] CRAN (R 4.2.0)
+ pkgbuild      1.3.1   2021-12-20 [1] CRAN (R 4.2.0)
+ pkgconfig     2.0.3   2019-09-22 [1] CRAN (R 4.2.0)
+ pkgload       1.3.3   2023-09-22 [1] CRAN (R 4.2.0)
+ prettyunits   1.1.1   2020-01-24 [1] CRAN (R 4.2.0)
+ processx      3.8.3   2023-12-10 [1] CRAN (R 4.2.0)
+ profvis       0.3.7   2020-11-02 [1] CRAN (R 4.2.0)
+ promises      1.2.0.1 2021-02-11 [1] CRAN (R 4.2.0)
+ ps            1.7.5   2023-04-18 [1] CRAN (R 4.2.0)
+ purrr         1.0.1   2023-01-10 [1] CRAN (R 4.2.0)
+ R6            2.5.1   2021-08-19 [1] CRAN (R 4.2.0)
+ Rcpp          1.0.9   2022-07-08 [1] CRAN (R 4.2.0)
+ remotes       2.4.2   2021-11-30 [1] CRAN (R 4.2.0)
+ rlang         1.1.1   2023-04-28 [1] CRAN (R 4.2.0)
+ rmarkdown     2.14    2022-04-25 [1] CRAN (R 4.2.0)
+ rstudioapi    0.13    2020-11-12 [1] CRAN (R 4.2.0)
+ scales        1.2.1   2022-08-20 [1] CRAN (R 4.2.0)
+ sessioninfo   1.2.2   2021-12-06 [1] CRAN (R 4.2.0)
+ shiny         1.7.2   2022-07-19 [1] CRAN (R 4.2.0)
+ stringi       1.7.12  2023-01-11 [1] CRAN (R 4.2.0)
+ stringr       1.5.0   2022-12-02 [1] CRAN (R 4.2.0)
+ tibble        3.2.1   2023-03-20 [1] CRAN (R 4.2.0)
+ tidyselect    1.2.0   2022-10-10 [1] CRAN (R 4.2.0)
+ urlchecker    1.0.1   2021-11-30 [1] CRAN (R 4.2.0)
+ usethis       2.1.6   2022-05-25 [1] CRAN (R 4.2.0)
+ utf8          1.2.3   2023-01-31 [1] CRAN (R 4.2.0)
+ vctrs         0.6.2   2023-04-19 [1] CRAN (R 4.2.0)
+ withr         2.5.0   2022-03-03 [1] CRAN (R 4.2.0)
+ xfun          0.32    2022-08-10 [1] CRAN (R 4.2.1)
+ xtable        1.8-4   2019-04-21 [1] CRAN (R 4.2.0)
+ yaml          2.3.5   2022-02-21 [1] CRAN (R 4.2.0)
+
+ [1] /Library/Frameworks/R.framework/Versions/4.2/Resources/library
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+```
