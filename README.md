@@ -93,7 +93,7 @@ chorangioma tissue especially since we didn't detect any widespread CNV events.
 
 ## Visualizing Results with ClonEvol
 
-[ClonEvol](https://github.com/hdng/clonevol) is a tool frequently used to visulalize and inspect the results of clonal
+[ClonEvol](https://github.com/hdng/clonevol) is a tool frequently used to visualize and inspect the results of clonal
 evolution predictions. It's written in R and was easiest to use within an R markdown doc for tighter integration of the
 analysis with notes.
 
