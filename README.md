@@ -52,17 +52,24 @@ population structure from genome sequencing data. It uses genome-wide CNV inform
 
 ### Formmating SNVs
 
-SNVs for clonal analysis were prefiltered for removal of FFPE artifact variants, `PASS` filter status from Mutect2, and
-those where confidence in the call could be accertained (i.e., coverage and read support exceeded sequencing error
-rate). Bialleleic SNV sites in the samples were obtained by using BCFTools following information in the
-[BCFTools view command filter docs](https://samtools.github.io/bcftools/bcftools.html#view). Specific commands:
+SNVs for clonal analysis must be prefiltered for removal of FFPE artifact variants and filter status from Mutect2.
+Processing for this step involves assertaining high confidence somatic variant calls (those where confidence in the call
+could be accertained, i.e. coverage and read support exceeded sequencing error rate, FILTER column is `PASS`). 
+Bialleleic SNV sites in the samples were obtained by using BCFTools following information in the
+[BCFTools view command filter docs](https://samtools.github.io/bcftools/bcftools.html#view).
+
+Example command:
 
 ```sh
-bcftools view -m2 -M2 -v snps -o LW001298.biallelic.mutect2.ideafix.PASS.hi-conf.vcf.gz LW001298.mutect2.ideafix.PASS.hi-conf.vcf.gz
-bcftools view -m2 -M2 -v snps -o LW001299.biallelic.mutect2.ideafix.PASS.hi-conf.vcf.gz LW001299.mutect2.ideafix.PASS.hi-conf.vcf.gz
+for vcf in *.vcf; do 
+    smp=$(echo $vcf | cut -d'.' -f1)
+    echo "${smp}" > samples.txt
+    bcftools view -m2 -M2 -v snps -i 'FILTER="PASS" & FORMAT/AD[@samples.txt:1] > 4 & FORMAT/DP[@samples.txt] > 19' -o ~/workspace/subclone-analysis/data/pyclone-input/${smp}.biallelic.mutect2.ideafix.PASS.hi-conf.vcf.gz ${vcf}
+    rm -f samples.txt
+done
 ```
 
-Resulting biallelic SNV VCF files are included in the [PyclonVI input dirctroy](data/pyclone-input).
+Resulting biallelic SNV VCF files are included in the [PyclonVI input directory](data/pyclone-input).
 
 ### Merging inputs for PyCloneVI
 
@@ -71,7 +78,7 @@ To run PyClone-VI the somatic SNVs need to be combined with the CNV region infor
 script [format_pyclone_input.py](format_pyclone_input.py) script when run with the default parameters will process the
 dataset for this analysis into the input format for PyClone-VI to run.
 
-The formmating script can be run with the following
+The formating script can be run with the following
 
 ```sh
 conda activate merge4pyclone
@@ -96,6 +103,16 @@ PyClone-VI analysis will take several mintues to run and output the results in
 [data/pyclone-output](data/pyclone-output). The \*.tsv files are the desired cluster predictions from both model types.
 Based on information from the literature and the PyClone authors the binomial distrubution model is suitable for the
 chorangioma tissue especially since we didn't detect any widespread CNV events.
+
+### Merging inputs for ClonEvol
+
+ClonEvol likes data formatted in a specific way to overcome some issues with the library. A simple formatter script
+can automatically format the PyClone-VI output and other variant data and create this format. To do this run:
+
+```sh
+conda activate merge4pyclone
+python format_clonevol_input.py
+```
 
 ## Visualizing Results with ClonEvol
 

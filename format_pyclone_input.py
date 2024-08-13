@@ -81,7 +81,7 @@ if __name__ == "__main__":
             "merged results output filepath (one sample per line)"
         ),
         type=lambda x: is_valid_file(PARSER, x),
-        default=".test/sample_config.tsv",
+        default="data/config/sample_config.tsv",
         metavar="\b",
     )
 
@@ -195,6 +195,7 @@ if __name__ == "__main__":
         "minor_cn",
         "normal_cn",
     ]
+    mut_df.sort_values(by=["mutation_id", "sample_id"], inplace=True)
     mut_df.to_csv(ARGS.output, sep="\t", index=False, columns=columns)
 
     print("Done. Outputs have been formatted and merged!")

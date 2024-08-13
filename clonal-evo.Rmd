@@ -48,7 +48,7 @@ the betabinomial probability density used to model the read count data by PyClon
 
 ```{r}
 library(clonevol)
-df <- read.table(file = "data/pyclone-output/pvp-pyclonevi-betabi-clonal-prediction.tsv", header = TRUE, sep = "\t")
+df <- read.table(file = "data/clonevol-input/pvp-binomial_clonal-clonevol.tsv", header = TRUE, sep = "\t")
 ```
 
 
@@ -57,48 +57,52 @@ need to increase each cluster ID by 1 before we can generate inference. Guessing
 need to convert the CCF info from a decimal fraction to a percent, and possibly include depth information :shrug:
 
 ```{r}
-df$cluster_id <- df$cluster_id + 1
-df$cpp <- df$cellular_prevalence * 100
+nonint_cols <- c("mutation_id", "cluster", "is_interesting", "gene")
+df[, !colnames(df) %in% nonint_cols] <- df[, !colnames(df) %in% nonint_cols] * 100
 
-# convert dataframe to state where cellular prevalence is a column for each sample
-# and drop unused columns
-data_list <- split(df, f = df$sample_id)
-df <- df[c("mutation_id", "cluster_id")]
-sids <- names(data_list)
-for (sid in sids) {
-  df[[sid]] <- data_list[[sid]]$cpp[match(df$mutation_id, data_list[[sid]]$mutation_id)]
-}
+# setup the order of clusters to display in various plots (later)
+df <- df[order(df$cluster), ]
 ```
 
-Another modification is required before processing b/c despite saying they can take other column names for the cluster ID
-a known and unfixed issue has been logged https://github.com/hdng/clonevol/issues/40 with the exact problem I initially
-ran into. Hence we need to rename the `cluster_id` column to `cluster`, the expected default name, before doing analysis.
+For formatting the dataframe ClonEvol only uses the cluster IDs (contiguous integer starting from 1) and CCF
+for phylogenetic structure determination. Other information can be contained within the dataframe for
+other QC and computations done.
+
+## Visualizing Clusters
+
+One of the noted things to do is to manually review the clustering. This visual check aids in determining if accurate
+clusters were determined by PyClone-VI and if any clusters should be excluded for particular samples. According to
+the ClonEvol docs
+
+```text
+When evaluating the clusters, look for potential outlier clusters (eg. ones with small number of variants),
+potential merged clusters (eg. ones that have variants with VAF stretching from zero to non-zero values in multiple
+samples, that can be further splitted in to multiple clusters), noise clusters (eg. ones that show very similar and low
+VAF across samples, indicating false variant calls). These conditions could be more relaxed with deeper sequencing as
+clustering can be more accurate.
+```
 
 ```{r}
-colnames(df)[which(names(df) == "cluster_id")] <- "cluster"
+pvaf <- plot.variant.clusters(df,
+  cluster.col.name = "cluster",
+  show.cluster.size = FALSE,
+  cluster.size.text.color = "blue",
+  vaf.col.names = grep('_vaf', colnames(df), value=T),
+  sample.title.size = 20,
+  violin = FALSE,
+  box = FALSE,
+  jitter = TRUE,
+  jitter.color = c(
+    "#999793", "#8d4891", "#f8e356",
+    "#fe9536", "green"
+  ),
+  display.plot = FALSE,
+  order.by.total.vaf = FALSE
+)
+plot(pvaf[[1]])
+plot(pvaf[[2]])
 ```
 
-Another unfortunate bug was found working with ClonEvol, thank goodness for FOSS and issue tracking on GitHub!
-This issue occurs when trying to run in single sample mode, the author of the tool notes that at some point they
-stopped supporting a single sample mode explicitly and suggest just making a fake duplicate sample to satisfy the
-tool and run the analysis. See https://github.com/hdng/clonevol/issues/38 for the full write up. The major interest
-in this project is the clonal evolution of the chorangioma tissue so focus will simply be on that sample
-
-```{r}
-df$D <- df$LW001299
-```
-
-Yet another issue with the code generation requires reordering the clusters if the founding clone isn't the one
-with the ID = 1. See https://github.com/hdng/clonevol/issues/7#issuecomment-382786214
-
-```{r}
-# fix cluster ordering for the model so founding clone is always labeled as 1
-c3 <- df$cluster == 4
-c1 <- df$cluster == 1
-df$cluster[c1] <- 4
-df$cluster[c3] <- 1
-df <- df[order(df$cluster),]
-```
 
 ## Ordering and Tree building
 
@@ -107,7 +111,7 @@ Since we used PyClone-VI to estimate copy number corrected CCF values we can pro
 
 ```{r}
 # set ClonEvol to the cluster colors desired, NULL indicates that ClonEvol will auto pick colors for us
-clone.colors <- c("#f3722c","#43aa8b","#f9c74f","#577590")
+# clone.colors <- c("#f3722c","#43aa8b","#f9c74f","#577590")
 
 y <- infer.clonal.models(
   variants = df,

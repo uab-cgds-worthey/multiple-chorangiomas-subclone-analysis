@@ -1,0 +1,3 @@
+sample_id	normal_id	sex	somatic_vcf	cnv_segments
+NORM_VILLI	LW001696	F	data/pyclone-input/NORM_VILLI.biallelic.mutect2.ideafix.PASS.hi-conf.vcf.gz	data/pyclone-input/NORM_VILLI_cnvkit_segmetrics.tsv
+CHORANGIOMA	LW001696	F	data/pyclone-input/CHORANGIOMA.biallelic.mutect2.ideafix.PASS.hi-conf.vcf.gz	data/pyclone-input/CHORANGIOMA_cnvkit_segmetrics.tsv
