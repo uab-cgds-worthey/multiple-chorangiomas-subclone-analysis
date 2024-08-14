@@ -1,0 +1,2 @@
+pyclone_input_vars	binomial_clonal	beta_binomial_clonal
+data/pyclone-input/30depth_5vaf_merged_snvs_cnvs_pyclone.txt	data/30depth-5vaf-pyclone-output/pvp-pyclonevi-binomial-clonal-prediction.tsv	data/30depth-5vaf-pyclone-output/pvp-pyclonevi-betabi-clonal-prediction.tsv

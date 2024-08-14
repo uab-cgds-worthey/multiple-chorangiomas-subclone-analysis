@@ -1,0 +1,1108 @@
+Removing 360 mutations with major copy number zero
+Tumour content column not found. Setting values to 1.0.
+
+Samples: CHORANGIOMA NORM_VILLI
+Num mutations: 35334
+Performing restart 0
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -8453189.467186987
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64093.30968590789
+Number of clusters used: 3
+
+Performing restart 1
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -6714493.833876694
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64088.838097606626
+Number of clusters used: 3
+
+Performing restart 2
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -27159048.09293562
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64101.58916912093
+Number of clusters used: 5
+
+Performing restart 3
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -3907883.415410219
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64103.825878192125
+Number of clusters used: 5
+
+Performing restart 4
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -4968400.369077845
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64082.31113158683
+Number of clusters used: 3
+
+Performing restart 5
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -3697730.7879892644
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64119.7004794088
+Number of clusters used: 4
+
+Performing restart 6
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -3341758.133358338
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64099.44766662026
+Number of clusters used: 5
+
+Performing restart 7
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -14403288.93702904
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64084.84476381789
+Number of clusters used: 4
+
+Performing restart 8
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -12606382.428154133
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64093.38093508216
+Number of clusters used: 6
+
+Performing restart 9
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -78867234.88450697
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64096.87486942966
+Number of clusters used: 3
+
+Performing restart 10
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -5401999.850639468
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64091.24033732344
+Number of clusters used: 3
+
+Performing restart 11
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -6411231.559848382
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64095.55922356738
+Number of clusters used: 4
+
+Performing restart 12
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -8723449.741804762
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64088.07126750026
+Number of clusters used: 5
+
+Performing restart 13
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -3944039.935360124
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64086.06657553323
+Number of clusters used: 3
+
+Performing restart 14
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -65870248.60886156
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64102.290404254854
+Number of clusters used: 5
+
+Performing restart 15
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -4819371.5762828505
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64082.845547978184
+Number of clusters used: 4
+
+Performing restart 16
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -8274238.365819206
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64091.11860154975
+Number of clusters used: 4
+
+Performing restart 17
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -4087899.2932771724
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64096.93293185026
+Number of clusters used: 6
+
+Performing restart 18
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -6194017.206700934
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64125.83347136811
+Number of clusters used: 4
+
+Performing restart 19
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -6498489.788350398
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64116.315520889475
+Number of clusters used: 4
+
+Performing restart 20
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -8495135.41790832
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64093.96297621112
+Number of clusters used: 3
+
+Performing restart 21
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -3852574.041579938
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64109.45369377444
+Number of clusters used: 4
+
+Performing restart 22
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -5244856.984239272
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64084.9157726649
+Number of clusters used: 4
+
+Performing restart 23
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -25051191.210627653
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64085.34361174266
+Number of clusters used: 3
+
+Performing restart 24
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -9203585.074245209
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64135.99040153708
+Number of clusters used: 4
+
+Performing restart 25
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -4788157.114394988
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64100.80295025892
+Number of clusters used: 4
+
+Performing restart 26
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7819975.149082667
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64108.153141472736
+Number of clusters used: 4
+
+Performing restart 27
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -13549587.03194012
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64110.07913742902
+Number of clusters used: 4
+
+Performing restart 28
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -5579083.987587923
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64092.12308683831
+Number of clusters used: 6
+
+Performing restart 29
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -41035402.74976728
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64104.40277886854
+Number of clusters used: 5
+
+Performing restart 30
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -4627162.720738411
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64088.52914753246
+Number of clusters used: 4
+
+Performing restart 31
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -3979621.470371996
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64083.75280364036
+Number of clusters used: 5
+
+Performing restart 32
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -6940303.927069459
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64097.25287737962
+Number of clusters used: 4
+
+Performing restart 33
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -6016359.583521906
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64097.430064448
+Number of clusters used: 5
+
+Performing restart 34
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7495264.648603749
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64082.19332238265
+Number of clusters used: 4
+
+Performing restart 35
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -5660668.382343985
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64096.746888571055
+Number of clusters used: 2
+
+Performing restart 36
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -4311744.988089328
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64098.35768936067
+Number of clusters used: 3
+
+Performing restart 37
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -5500273.930242744
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64098.361197775055
+Number of clusters used: 3
+
+Performing restart 38
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -34364788.976523325
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64149.29815413718
+Number of clusters used: 6
+
+Performing restart 39
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -5681739.74680638
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64099.46794563859
+Number of clusters used: 5
+
+Performing restart 40
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -4498896.988319329
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64084.84673399932
+Number of clusters used: 3
+
+Performing restart 41
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -4441996.222050623
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64132.952816393874
+Number of clusters used: 6
+
+Performing restart 42
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7022901.070295519
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64105.111735927305
+Number of clusters used: 4
+
+Performing restart 43
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -57446367.80149978
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64099.31178825544
+Number of clusters used: 5
+
+Performing restart 44
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -9678131.115316823
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64080.683159408654
+Number of clusters used: 3
+
+Performing restart 45
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7541131.787109247
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64083.73641689665
+Number of clusters used: 3
+
+Performing restart 46
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -4936269.499170435
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64102.20051601701
+Number of clusters used: 5
+
+Performing restart 47
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -18690086.663647555
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64080.78670363109
+Number of clusters used: 4
+
+Performing restart 48
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7063253.542541063
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64089.89206105933
+Number of clusters used: 3
+
+Performing restart 49
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -199384590.4353892
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64084.624582932316
+Number of clusters used: 3
+
+Performing restart 50
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -12051914.980890498
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64084.141431898344
+Number of clusters used: 4
+
+Performing restart 51
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -62786771.792367056
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64107.20977603344
+Number of clusters used: 3
+
+Performing restart 52
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -6427279.96771971
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64080.0593783481
+Number of clusters used: 4
+
+Performing restart 53
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -3160053.9158204454
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64087.95037433363
+Number of clusters used: 4
+
+Performing restart 54
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -3121225.542391448
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64086.73516935151
+Number of clusters used: 3
+
+Performing restart 55
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -4571057.382107865
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64087.76679205184
+Number of clusters used: 4
+
+Performing restart 56
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7248311.083901218
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64090.31960821003
+Number of clusters used: 3
+
+Performing restart 57
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -5026192.568843878
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64090.042119512575
+Number of clusters used: 4
+
+Performing restart 58
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -10144625.354550114
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64135.579877095384
+Number of clusters used: 3
+
+Performing restart 59
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -14227810.10234886
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64087.29729696942
+Number of clusters used: 3
+
+Performing restart 60
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -6622661.598526801
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64131.25981304229
+Number of clusters used: 5
+
+Performing restart 61
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -8776582.642678589
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64086.35679875304
+Number of clusters used: 5
+
+Performing restart 62
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -8497814.299249986
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64082.76775376578
+Number of clusters used: 4
+
+Performing restart 63
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -9196680.985778445
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64107.011385920676
+Number of clusters used: 4
+
+Performing restart 64
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -4567670.498626458
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64091.662051258434
+Number of clusters used: 3
+
+Performing restart 65
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -12390064.172522929
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64093.21023020748
+Number of clusters used: 4
+
+Performing restart 66
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7729661.198797918
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64104.03249880161
+Number of clusters used: 4
+
+Performing restart 67
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -18402326.245916564
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64086.35577335836
+Number of clusters used: 4
+
+Performing restart 68
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7448192.470793953
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64126.77057045886
+Number of clusters used: 5
+
+Performing restart 69
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -22123796.05381487
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64118.972450947316
+Number of clusters used: 5
+
+Performing restart 70
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -4052258.8978796774
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64097.95650036643
+Number of clusters used: 4
+
+Performing restart 71
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7465509.518624601
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64120.46180747751
+Number of clusters used: 5
+
+Performing restart 72
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -5189558.807752103
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64079.99424587935
+Number of clusters used: 5
+
+Performing restart 73
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -6684085.126387604
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64089.612006430456
+Number of clusters used: 3
+
+Performing restart 74
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -3722780.7087172447
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64079.100427769874
+Number of clusters used: 4
+
+Performing restart 75
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7280981.280305017
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64113.55673555773
+Number of clusters used: 6
+
+Performing restart 76
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -8894895.701799499
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64088.73057513377
+Number of clusters used: 4
+
+Performing restart 77
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -14247515.58213863
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64105.85669618596
+Number of clusters used: 4
+
+Performing restart 78
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -9547682.23762836
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64097.68397476755
+Number of clusters used: 5
+
+Performing restart 79
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -27158917.48975061
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64088.038487129714
+Number of clusters used: 4
+
+Performing restart 80
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -67101627.89869637
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64107.2562968507
+Number of clusters used: 4
+
+Performing restart 81
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7056829.651802312
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64086.9249055797
+Number of clusters used: 3
+
+Performing restart 82
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -5360047.657595443
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64101.91542117017
+Number of clusters used: 5
+
+Performing restart 83
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -6213747.800957354
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64091.104414495654
+Number of clusters used: 4
+
+Performing restart 84
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -3847485.2704071505
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64105.01299534286
+Number of clusters used: 4
+
+Performing restart 85
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -5012386.05715652
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64084.76949736617
+Number of clusters used: 5
+
+Performing restart 86
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7317802.038544092
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64105.52730774182
+Number of clusters used: 6
+
+Performing restart 87
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -10568623.206693409
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64089.60364356076
+Number of clusters used: 4
+
+Performing restart 88
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -7319060.3456794275
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64080.70594580403
+Number of clusters used: 5
+
+Performing restart 89
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -5833681.024717678
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64112.05938630931
+Number of clusters used: 5
+
+Performing restart 90
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -6868667.967883058
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64097.678877854145
+Number of clusters used: 4
+
+Performing restart 91
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -9472525.925080912
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64119.923253766385
+Number of clusters used: 5
+
+Performing restart 92
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -49513823.78798097
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64105.65070729116
+Number of clusters used: 5
+
+Performing restart 93
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -5324124.268365983
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64098.06770864956
+Number of clusters used: 5
+
+Performing restart 94
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -14299120.399181148
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64107.991519321484
+Number of clusters used: 4
+
+Performing restart 95
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -8893519.628617458
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64092.23538350628
+Number of clusters used: 4
+
+Performing restart 96
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -13291789.329309685
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64112.476161501574
+Number of clusters used: 4
+
+Performing restart 97
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -3271748.19152213
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64102.60526803574
+Number of clusters used: 3
+
+Performing restart 98
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -3831952.6491904524
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64086.60910326888
+Number of clusters used: 5
+
+Performing restart 99
+Setting annealing factor to : 1.0
+
+Iteration: 0
+ELBO: -6532308.538846351
+Number of clusters used: 40
+
+Fitting completed
+ELBO: -64099.37051826855
+Number of clusters used: 3
+
+All restarts completed
+Final ELBO: -64079.100427769874
+Number of clusters used: 4

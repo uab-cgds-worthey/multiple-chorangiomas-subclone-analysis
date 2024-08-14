@@ -57,7 +57,7 @@ if __name__ == "__main__":
     PARSER.add_argument(
         "--sort_sample",
         help="sample to sort and renumber samples by, based on CCF of clusters for samples",
-        default="CHORANGIOMA",
+        default="NORM_VILLI",
         type=str,
         metavar="\b",
     )

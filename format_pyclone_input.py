@@ -55,6 +55,7 @@ def read_muts_from_vcf(vcf, sample_id, normal_id):
                 ad_info = vcfcols[somatic_sample_col].split(":")[ad_index].split(",")
                 if ad_info[1] in [".", "0"]:
                     ad_info = vcfcols[normal_sample_col].split(":")[ad_index].split(",")
+
                 var_tuple = (vcfcols[0], vcfcols[1], vcfcols[3], vcfcols[4])
                 mut_dict[var_tuple] = {
                     "mutation_id": "_".join(var_tuple),
@@ -93,6 +94,22 @@ if __name__ == "__main__":
         metavar="\b",
     )
 
+    PARSER.add_argument(
+        "--depth",
+        help="only use sites with a read depth greater than or equal to this setting",
+        default=0,
+        type=int,
+        metavar="\b",
+    )
+
+    PARSER.add_argument(
+        "--vaf",
+        help="only use sites with VAF greater than or equal to this setting",
+        default=0,
+        type=float,
+        metavar="\b",
+    )
+
     ARGS = PARSER.parse_args(sys.argv[1:])
 
     # read in sample information
@@ -102,9 +119,8 @@ if __name__ == "__main__":
 
     # convert CNV segments file as a PyRange for easy feature intersection lookup
     # convert bi-allelic SNVs info into PyRange as well for intersection with CNV segments
-    print("Converting CNVs and SNVs to PyRanges...")
+    print("Converting CNVs to PyRanges...")
     sample_cnv_segments = dict()
-    sample_snvs = dict()
     for sample_id, row in sample_info.iterrows():
         # process CNV segments
         tempdf = pd.read_csv(
@@ -117,6 +133,9 @@ if __name__ == "__main__":
         )
         sample_cnv_segments[sample_id] = PyRanges(tempdf)
 
+    # get all variants and depth info from both samples
+    sample_snvs = dict()
+    for sample_id, row in sample_info.iterrows():
         # process SNVs from VCF file
         sample_snvs[sample_id] = read_muts_from_vcf(
             row["somatic_vcf"], sample_id, row["normal_id"]
@@ -141,6 +160,25 @@ if __name__ == "__main__":
                     "Start": int(variant_tuple[1]),
                     "End": int(variant_tuple[1]),
                 }
+
+    # filter out sites where all samples variant calls don't meet depth and vaf thresholds
+    for variant_tuple in var_set:
+        passes_filter = False
+        for snv_dict in sample_snvs.values():
+            depth = int(snv_dict[variant_tuple]["ref_counts"]) + int(
+                snv_dict[variant_tuple]["alt_counts"]
+            )
+            if depth == 0:
+                continue
+
+            vaf = float(snv_dict[variant_tuple]["alt_counts"]) / float(depth)
+            if depth >= ARGS.depth and vaf >= ARGS.vaf:
+                passes_filter = True
+                break
+
+        if not passes_filter:
+            for snv_dict in sample_snvs.values():
+                del snv_dict[variant_tuple]
 
     # join the CNV and SNV PyRanges for each sample (i.e. match overlapping CNV segment with a SNV)
     # see https://github.com/Roth-Lab/pyclone-vi#input-format for description of the PyClone-VI format we are writing out
