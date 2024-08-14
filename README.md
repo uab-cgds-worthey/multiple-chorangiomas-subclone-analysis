@@ -64,7 +64,7 @@ Example command:
 for vcf in *.vcf; do 
     smp=$(echo $vcf | cut -d'.' -f1)
     echo "${smp}" > samples.txt
-    bcftools view -m2 -M2 -v snps -i 'FILTER="PASS" & FORMAT/AD[@samples.txt:1] > 4 & FORMAT/DP[@samples.txt] > 19' -o ~/workspace/subclone-analysis/data/pyclone-input/${smp}.biallelic.mutect2.ideafix.PASS.hi-conf.vcf.gz ${vcf}
+    bcftools view -m2 -M2 -v snps -i 'FILTER="PASS" & FORMAT/AD[@samples.txt:1] > 2 & FORMAT/DP[@samples.txt] > 19' -o ~/workspace/subclone-analysis/data/pyclone-input/${smp}.biallelic.mutect2.ideafix.PASS.hi-conf.vcf.gz ${vcf}
     rm -f samples.txt
 done
 ```
