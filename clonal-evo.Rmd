@@ -107,12 +107,23 @@ Since we used PyClone-VI to estimate copy number corrected CCF values we can pro
 `ccf.col.names` parameter in `infer.clonal.models` function:
 
 ```{r}
+# rename VAF columns for better sample labeling in output diagrams
+vaf_col_names <- grep("_vaf", colnames(df), value = TRUE)
+sample_names <- gsub("_vaf", "", vaf_col_names)
+sample_names <- gsub("NORM_VILLI", "Normal_Villi", sample_names)
+sample_names <- gsub("CHORANGIOMA", "Chorangioma", sample_names)
+df[, sample_names] <- df[, vaf_col_names]
+vaf_col_names <- sample_names
+
+# define clone colors
+clone_colors <- c("#648FFF", "#009E73", "#CC79A7")
+
 # compute clonal models
 y <- infer.clonal.models(
   variants = df,
   cluster.col.name = "cluster",
-  vaf.col.names = grep("_vaf", colnames(df), value = TRUE),
-  # ccf.col.names = grep("_ccf", colnames(df), value = TRUE),
+  vaf.col.names = vaf_col_names,
+  clone.colors = clone_colors,
   cancer.initiation.model = "monoclonal",
   subclonal.test = "bootstrap",
   subclonal.test.model = "non-parametric",
