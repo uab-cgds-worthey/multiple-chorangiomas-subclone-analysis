@@ -48,10 +48,7 @@ the betabinomial probability density used to model the read count data by PyClon
 
 ```{r}
 library(clonevol)
-# df <- read.table(file = "data/clonevol-input/pvp-binomial_clonal-clonevol.tsv", header = TRUE, sep = "\t")
-# df <- read.table(file = "data/30depth-5vaf-clonevol-input/pvp-binomial_clonal-clonevol.tsv", header = TRUE, sep = "\t")
-# df <- read.table(file = "data/30depth-5vaf-clonevol-input/pvp-beta_binomial_clonal-clonevol.tsv", header = TRUE, sep = "\t")
-df <- read.table(file = "data/40depth-10vaf-clonevol-input/pvp-binomial_clonal-clonevol.tsv", header = TRUE, sep = "\t")
+df <- read.table(file = "data/40depth-20vaf-clonevol-input/pvp-beta_binomial_clonal-clonevol.tsv", header = TRUE, sep = "\t")
 ```
 
 
@@ -116,7 +113,7 @@ y <- infer.clonal.models(
   cluster.col.name = "cluster",
   vaf.col.names = grep("_vaf", colnames(df), value = TRUE),
   # ccf.col.names = grep("_ccf", colnames(df), value = TRUE),
-  cancer.initiation.model = "polyclonal",
+  cancer.initiation.model = "monoclonal",
   subclonal.test = "bootstrap",
   subclonal.test.model = "non-parametric",
   num.boots = 1000,
@@ -194,7 +191,7 @@ plot.clonal.models(
   cell.frac.ci = TRUE,
   disable.cell.frac = FALSE,
   # output figure parameters
-  out.dir = "data/40depth-10vaf-clonevol-output",
+  out.dir = "data/40depth-20vaf-clonevol-output",
   out.format = "pdf",
   overwrite.output = TRUE,
   width = 16,
