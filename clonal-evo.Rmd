@@ -157,7 +157,6 @@ Plot the evolution dynamics in a PDF
 ```{r}
 plot.clonal.models(
   y,
-  disable.sample.label = TRUE,
   # box plot parameters
   box.plot = TRUE,
   fancy.boxplot = TRUE,
@@ -165,7 +164,8 @@ plot.clonal.models(
   fancy.variant.boxplot.jitter.center.color = "grey50",
   fancy.variant.boxplot.base_size = 12,
   fancy.variant.boxplot.plot.margin = 1,
-  fancy.variant.boxplot.vaf.suffix = " Cellular Fraction",
+  fancy.variant.boxplot.vaf.suffix = " Variant Allele Fraction",
+  fancy.variant.boxplot.sample.title.size = 10,
   # bell plot parameters
   clone.shape = "bell",
   bell.event = TRUE,
@@ -175,21 +175,14 @@ plot.clonal.models(
   bell.curve.step = 1,
   # node-based consensus tree parameters
   merged.tree.plot = FALSE,
-  tree.node.label.split.character = NULL,
-  tree.node.shape = "circle",
-  tree.node.size = 30,
-  tree.node.text.size = 0.5,
-  merged.tree.node.size.scale = 1.25,
-  merged.tree.node.text.size.scale = 1.5,
-  merged.tree.cell.frac.ci = FALSE,
   # branch-based consensus tree parameters
   merged.tree.clone.as.branch = TRUE,
   mtcab.event.sep.char = ",",
   mtcab.branch.text.size = 1,
   mtcab.branch.width = 0.25,
-  mtcab.node.size = 6,
-  mtcab.node.label.size = 2,
-  mtcab.node.text.size = 1,
+  mtcab.node.size = 4,
+  mtcab.node.label.size = 1.5,
+  mtcab.node.text.size = 1.4,
   # cellular population parameters
   cell.plot = TRUE,
   num.cells = 200,
@@ -205,10 +198,10 @@ plot.clonal.models(
   out.dir = "data/40depth-20vaf-clonevol-output",
   out.format = "pdf",
   overwrite.output = TRUE,
-  width = 16,
-  height = 10,
+  width = 11,
+  height = 6,
   # vector of width scales for each panel from left to right
-  panel.widths = c(3, 5, 4, 4)
+  panel.widths = c(3, 3, 3, 2)
 )
 
 print("Done")
