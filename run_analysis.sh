@@ -67,7 +67,7 @@ if [[ -z $CONFIG ]]; then
     CONFIG=${SCRIPT_DIR}/data/metadata/sample_config.tsv
 fi
 
-if [[ -z $CONFIG ]]; then
+if [[ -z $OUTDIR ]]; then
     OUTDIR=${SCRIPT_DIR}/data/output
 fi
 
@@ -94,26 +94,24 @@ else
     python ${SCRIPT_DIR}/src/format_pyclone_input.py --input ${CONFIG} --output ${PYCLONE_INPUT} --depth ${DEPTH} --vaf ${VAF}
 fi
 
-echo "Running pyclone fit"
+# echo "Running pyclone fit"
 conda activate pyclone-vi
 pyclone-vi fit -i ${PYCLONE_INPUT} -o ${PYCLONE_OUT_DIR}/pvp-pyclonevi-betabi-fit.h5 -c 40 -d beta-binomial -r 100 &>${PYCLONE_OUT_DIR}/pyclone-fit-betabi.log &
 pyclone-vi fit -i ${PYCLONE_INPUT} -o ${PYCLONE_OUT_DIR}/pvp-pyclonevi-binomial-fit.h5 -c 40 -d binomial -r 100 &>${PYCLONE_OUT_DIR}/pyclone-fit-binomial.log &
 
 wait
 
-echo "Writing results from pyclone"
+# echo "Writing results from pyclone"
 PYCLONE_BETA_PRED=${PYCLONE_OUT_DIR}/pvp-pyclonevi-betabi-clonal-prediction.tsv
-PYCLONE_BINOMIAL_PRED=${PYCLONE_OUT_DIR}/${PYCLONE_OUT_DIR}/pvp-pyclonevi-binomial-clonal-prediction.txt
-pyclone-vi write-results-file -i ${PYCLONE_OUT_DIR}/pvp-pyclonevi-betabi-fit.h5 -o ${PYCLONE_BETA_PRED}
-pyclone-vi write-results-file -i ${PYCLONE_OUT_DIR}/pvp-pyclonevi-binomial-fit.h5 -o ${PYCLONE_BINOMIAL_PRED}
+PYCLONE_BINOMIAL_PRED=${PYCLONE_OUT_DIR}/pvp-pyclonevi-binomial-clonal-prediction.txt
 echo "Done"
 
-echo "Formatting input for ClonEvol"
+# echo "Formatting input for ClonEvol"
 conda activate merge4pyclone
 CLONEVOL_CONFIG=${CLONEVOL_IN_DIR}/clonevol_input_config.tsv
 echo -e "pyclone_input_vars\tbinomial_clonal\tbeta_binomial_clonal" >${CLONEVOL_CONFIG}
 echo -e "${PYCLONE_INPUT}\t${PYCLONE_BINOMIAL_PRED}\t${PYCLONE_BETA_PRED}" >>${CLONEVOL_CONFIG}
-python ${SCRIPT_DIR}/src/format_clonevol_input.py --input ${CLONEVOL_CONFIG} --output ${CLONEVOL_IN_DIR} --neatvars ${INTERSTING_VARS}
+python ${SCRIPT_DIR}/src/format_clonevol_input.py --input ${CLONEVOL_CONFIG} --output ${CLONEVOL_IN_DIR} --neatvars ${INTERSTING_VARS} --sort_sample CHORANGIOMA
 
 echo "Running ClonEvol"
 Rscript --vanilla ${SCRIPT_DIR}/src/clonevol_model.R -i ${CLONEVOL_IN_DIR} -o ${CLONEVOL_OUT_DIR}

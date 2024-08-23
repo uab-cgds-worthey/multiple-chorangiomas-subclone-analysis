@@ -29,6 +29,91 @@ if (is.null(args$input_dir) || is.null(args$output_dir)) {
 
 library(clonevol)
 
+# Monkey patch the cross.rule.score() function in the clonevol package so that
+# an error in scoring concensus models doesn't crash the application
+# monkey patch for R came from this blog post https://dlukes.github.io/monkey-patching-in-r.html
+# this resolves an issue resolved in this SO post https://stackoverflow.com/a/42036069/2892199
+# `clone.ccf.combined.p` just needs to be initianlized before being set for some odd reson
+
+
+#########################################################################
+cross.rule.score <- function(x, meta.p.method = "fisher", exhaustive.mode = FALSE,
+                             rank = TRUE, boot = NULL) {
+  if (!is.null(x$matched) && x$num.matched.models > 0 && ncol(x$matched$index) > 1) {
+    if (!is.null(x$matched$trimmed.merged.trees)) {
+      cat("WARN: pruned trees found. pruneConsensusTrees must be rerun.\n")
+    }
+    samples <- names(x$models)
+    num.models <- nrow(x$matched$index)
+    x$matched$scores$max.clone.ccf.combined.p <- NA
+    x$matched$clone.ccf.pvalues <- list()
+    # foreach matched model, recalc score by combining p values across
+    # samples for each clone
+    for (i in 1:num.models) {
+      trees <- NULL
+      t <- x$match$merged.trees[[i]]
+      p <- NULL
+      for (s in samples) {
+        mi <- x$models[[s]][[x$match$index[i, s]]]
+        mi <- mi[!mi$excluded & !is.na(mi$parent), c("lab", "p.value")]
+        colnames(mi) <- c("lab", s)
+        if (is.null(p)) {
+          p <- mi
+        } else {
+          p <- merge(p, mi, all = TRUE)
+        }
+      }
+      # ppp <<- p
+      if (ncol(p) == 2) { # single sample
+        p$cmb.p <- apply(p[, c(2, 2)], 1, clonevol:::combine.p, method = meta.p.method)
+      } else {
+        p$cmb.p <- apply(p[, -1], 1, clonevol:::combine.p, method = meta.p.method)
+      }
+      # model score = max (combined p of each clone)
+      x$matched$scores$max.clone.ccf.combined.p[i] <- max(p$cmb.p)
+      # this is never used elsewhere and tanks the whole plotting
+      x$matched$merged.trees[[i]]$clone.ccf.combined.p <- NA
+      # save the whole pvalue matrix
+      x$matched$clone.ccf.pvalues[[i]] <- p
+    }
+    # order matched models by new score
+    idx <- seq(1, nrow(x$matched$scores))
+    if (rank) {
+      idx <- order(x$matched$scores$max.clone.ccf.combined.p)
+    }
+    x$matched$index <- x$matched$index[idx, , drop = FALSE]
+    x$matched$scores <- x$matched$scores[idx, , drop = FALSE]
+    x$matched$probs <- x$matched$probs[idx, , drop = FALSE]
+    # order merged trees
+    tmp <- list()
+    for (i in idx) {
+      tmp <- c(tmp, list(x$matched$merged.trees[[i]]))
+    }
+    x$matched$merged.trees <- tmp
+    # order merged traces
+    tmp <- list()
+    for (i in idx) {
+      tmp <- c(tmp, list(x$matched$merged.traces[[i]]))
+    }
+    x$matched$merged.traces <- tmp
+    # order pvalues
+    tmp <- list()
+    for (i in idx) {
+      tmp <- c(tmp, list(x$matched$clone.ccf.pvalues[[i]]))
+    }
+    x$matched$clone.ccf.pvalues <- tmp
+
+    # remove previous obsolete model scores (which was very small probability)
+    # x$matched$scores$model.prob = x$matched$scores$model.score
+    # x$matched$scores$model.score = NULL
+  }
+  return(x)
+}
+
+assignInNamespace("cross.rule.score", cross.rule.score, "clonevol")
+#########################################################################
+
+
 if (!dir.exists(args$output_dir)) dir.create(args$output_dir)
 
 cluster_files <- list.files(args$input_dir, pattern = ".+\\.tsv", full.names = TRUE) # nolint
@@ -60,7 +145,7 @@ for (cluster_tsv in cluster_files) {
   vaf_col_names <- sample_names
 
   # define clone colors
-  clone_colors <- c("#648FFF", "#009E73", "#CC79A7")
+  clone_colors <- NULL
 
   # compute clonal models
   y <- infer.clonal.models(
@@ -68,7 +153,7 @@ for (cluster_tsv in cluster_files) {
     cluster.col.name = "cluster",
     vaf.col.names = vaf_col_names,
     clone.colors = clone_colors,
-    cancer.initiation.model = "monoclonal",
+    cancer.initiation.model = "polyclonal",
     subclonal.test = "bootstrap",
     subclonal.test.model = "non-parametric",
     num.boots = 1000,
@@ -93,7 +178,7 @@ for (cluster_tsv in cluster_files) {
   }
 
   # scale size of # of variants in cluster by square root transform
-  y <- convert.consensus.tree.clone.to.branch(y, branch.scale = "sqrt")
+  y <- convert.consensus.tree.clone.to.branch(y, branch.scale = "log2")
 
   # plot the models
   plot.clonal.models(
