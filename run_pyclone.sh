@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 SCRIPT_DIR="$(realpath $(dirname -- "${BASH_SOURCE[0]:-$0}"))"
 # INPUT=${SCRIPT_DIR}/data/pyclone-input/merged_snvs_cnvs_pyclone.txt
-INPUT=${SCRIPT_DIR}/data/pyclone-input/incvars_40depth_20vaf_merged_snvs_cnvs_pyclone.txt
-OUTDIR=${SCRIPT_DIR}/data/incvar-40depth-20vaf-pyclone-output
+INPUT=${SCRIPT_DIR}/data/pyclone-input/incvars_35depth_8vaf_merged_snvs_cnvs_pyclone.txt
+OUTDIR=${SCRIPT_DIR}/data/incvar-35depth-8vaf-pyclone-output
 mkdir -p ${OUTDIR}
 
 set -eo pipefail
