@@ -48,7 +48,7 @@ the betabinomial probability density used to model the read count data by PyClon
 
 ```{r}
 library(clonevol)
-df <- read.table(file = "data/40depth-20vaf-clonevol-input/pvp-beta_binomial_clonal-clonevol.tsv", header = TRUE, sep = "\t")
+df <- read.table(file = "data/incvar-40depth-20vaf-clonevol-input/pvp-beta_binomial_clonal-clonevol.tsv", header = TRUE, sep = "\t")
 ```
 
 
@@ -195,7 +195,7 @@ plot.clonal.models(
   cell.frac.ci = TRUE,
   disable.cell.frac = FALSE,
   # output figure parameters
-  out.dir = "data/40depth-20vaf-clonevol-output",
+  out.dir = "data/incvar-40depth-20vaf-clonevol-output",
   out.format = "pdf",
   overwrite.output = TRUE,
   width = 11,

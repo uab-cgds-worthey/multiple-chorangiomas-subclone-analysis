@@ -6,6 +6,13 @@ import sys
 import pandas as pd
 from pyranges import PyRanges
 
+INCLUDE_VARIANTS = {
+    ("chr1", "45332445", "C", "T"),
+    ("chr17", "50194375", "C", "T"),
+    ("chr3", "32891590", "C", "T"),
+    ("chr2", "47834657", "C", "A"),
+}
+
 
 def is_valid_output_file(p, arg):
     if os.access(Path(os.path.expandvars(arg)).parent, os.W_OK):
@@ -36,13 +43,12 @@ def read_muts_from_vcf(vcf, sample_id, normal_id):
         normal_sample_col = 9
         somatic_sample_col = 10
         for line in snvs_fp:
-            if line.startswith("#"):
-                if not line.startswith("#CHROM"):
-                    continue
-                else:
-                    cols = line.rstrip().split("\t")
-                    normal_sample_col = cols.index(normal_id)
-                    somatic_sample_col = cols.index(sample_id)
+            if line.startswith("#CHROM"):
+                cols = line.rstrip().split("\t")
+                normal_sample_col = cols.index(normal_id)
+                somatic_sample_col = cols.index(sample_id)
+            elif line.startswith("#"):
+                continue
 
             vcfcols = line.rstrip().split("\t")
             # skip multiallelic sites as CNVKit doesn't use them for calculation
@@ -57,6 +63,10 @@ def read_muts_from_vcf(vcf, sample_id, normal_id):
                     ad_info = vcfcols[normal_sample_col].split(":")[ad_index].split(",")
 
                 var_tuple = (vcfcols[0], vcfcols[1], vcfcols[3], vcfcols[4])
+
+                if var_tuple in INCLUDE_VARIANTS:
+                    print(f"Found {var_tuple} in {sample_id}")
+
                 mut_dict[var_tuple] = {
                     "mutation_id": "_".join(var_tuple),
                     "ref_counts": int(ad_info[0]),
@@ -110,6 +120,12 @@ if __name__ == "__main__":
         metavar="\b",
     )
 
+    PARSER.add_argument(
+        "--incvars",
+        help="manually include interesting somatic variants from analysis into output",
+        action="store_true",
+    )
+
     ARGS = PARSER.parse_args(sys.argv[1:])
 
     # read in sample information
@@ -145,9 +161,9 @@ if __name__ == "__main__":
     # i.e., PyClone-Vi requires that all samples have all variants listed even if the variant wasn't called in the
     # given sample so we need to add those variants to a sample with values of zero to prevent it from pre-filtering
     # them out and not using for analysis
-    var_set = set()  # makes unique set of Chromosome, Start tuples
-    for snvs_dict in sample_snvs.values():
-        var_set.update(snvs_dict.keys())
+    var_set = set()  # makes unique set of variant tuples
+    for sample_variant_dict in sample_snvs.values():
+        var_set.update(sample_variant_dict.keys())
 
     for variant_tuple in var_set:
         for snv_dict in sample_snvs.values():
@@ -163,6 +179,11 @@ if __name__ == "__main__":
 
     # filter out sites where all samples variant calls don't meet depth and vaf thresholds
     for variant_tuple in var_set:
+        # keep in interesting variants if indicated by options regardless of depth
+        if ARGS.incvars and variant_tuple in INCLUDE_VARIANTS:
+            print(f"Skipping filtering {variant_tuple} out from variant list")
+            continue
+
         passes_filter = False
         for snv_dict in sample_snvs.values():
             depth = int(snv_dict[variant_tuple]["ref_counts"]) + int(
