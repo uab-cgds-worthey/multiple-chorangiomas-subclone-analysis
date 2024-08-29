@@ -6,19 +6,13 @@ import sys
 import pandas as pd
 from pyranges import PyRanges
 
-INCLUDE_VARIANTS = {
-    ("chr1", "45332445", "C", "T"),
-    ("chr17", "50194375", "C", "T"),
-    ("chr3", "32891590", "C", "T"),
-    ("chr2", "47834657", "C", "A"),
-}
 
-
-def is_valid_output_file(p, arg):
-    if os.access(Path(os.path.expandvars(arg)).parent, os.W_OK):
+def is_valid_output_dir(p, arg):
+    dirpath = Path(os.path.expandvars(arg))
+    if os.access(dirpath, os.W_OK) and dirpath.is_dir():
         return os.path.expandvars(arg)
     else:
-        p.error(f"Output file {arg} can't be accessed or is invalid!")
+        p.error(f"Output directory {arg} can't be accessed or is invalid!")
 
 
 def is_valid_file(p, arg):
@@ -37,18 +31,19 @@ def get_AD_index(format_str):
     return None
 
 
-def read_muts_from_vcf(vcf, sample_id, normal_id):
-    mut_dict = dict()
+def read_muts_from_vcf(vcf, sample_id, normal_id, min_depth, min_vaf):
+    variants = []
     with open(vcf, "rt") if vcf.endswith(".vcf") else gzip.open(vcf, "rt") as snvs_fp:
         normal_sample_col = 9
         somatic_sample_col = 10
         for line in snvs_fp:
-            if line.startswith("#CHROM"):
-                cols = line.rstrip().split("\t")
-                normal_sample_col = cols.index(normal_id)
-                somatic_sample_col = cols.index(sample_id)
-            elif line.startswith("#"):
-                continue
+            if line.startswith("#"):
+                if not line.startswith("#CHROM"):
+                    continue
+                else:
+                    cols = line.rstrip().split("\t")
+                    normal_sample_col = cols.index(normal_id)
+                    somatic_sample_col = cols.index(sample_id)
 
             vcfcols = line.rstrip().split("\t")
             # skip multiallelic sites as CNVKit doesn't use them for calculation
@@ -61,22 +56,24 @@ def read_muts_from_vcf(vcf, sample_id, normal_id):
                 ad_info = vcfcols[somatic_sample_col].split(":")[ad_index].split(",")
                 if ad_info[1] in [".", "0"]:
                     ad_info = vcfcols[normal_sample_col].split(":")[ad_index].split(",")
-
                 var_tuple = (vcfcols[0], vcfcols[1], vcfcols[3], vcfcols[4])
+                ref_counts = int(ad_info[0])
+                alt_counts = int(ad_info[1])
+                depth = ref_counts + alt_counts
+                vaf = float(alt_counts) / float(depth)
+                if depth >= min_depth and vaf >= min_vaf:
+                    variants.append(
+                        {
+                            "mutation_id": "_".join(var_tuple),
+                            "ref_counts": ref_counts,
+                            "alt_counts": alt_counts,
+                            "Chromosome": vcfcols[0],
+                            "Start": int(vcfcols[1]),
+                            "End": int(vcfcols[1]),
+                        }
+                    )
 
-                if var_tuple in INCLUDE_VARIANTS:
-                    print(f"Found {var_tuple} in {sample_id}")
-
-                mut_dict[var_tuple] = {
-                    "mutation_id": "_".join(var_tuple),
-                    "ref_counts": int(ad_info[0]),
-                    "alt_counts": int(ad_info[1]),
-                    "Chromosome": vcfcols[0],
-                    "Start": int(vcfcols[1]),
-                    "End": int(vcfcols[1]),
-                }
-
-    return mut_dict
+    return variants
 
 
 if __name__ == "__main__":
@@ -98,9 +95,9 @@ if __name__ == "__main__":
 
     PARSER.add_argument(
         "--output",
-        help="output file path to write merged PyClone-VI input file to",
-        default="data/pyclone-input/merged_snvs_cnvs_pyclone.txt",
-        type=lambda x: is_valid_output_file(PARSER, x),
+        help="output directory path to write merged PyClone-VI input files to",
+        default="data/pyclone-input/",
+        type=lambda x: is_valid_output_dir(PARSER, x),
         metavar="\b",
     )
 
@@ -120,12 +117,6 @@ if __name__ == "__main__":
         metavar="\b",
     )
 
-    PARSER.add_argument(
-        "--incvars",
-        help="manually include interesting somatic variants from analysis into output",
-        action="store_true",
-    )
-
     ARGS = PARSER.parse_args(sys.argv[1:])
 
     # read in sample information
@@ -135,8 +126,19 @@ if __name__ == "__main__":
 
     # convert CNV segments file as a PyRange for easy feature intersection lookup
     # convert bi-allelic SNVs info into PyRange as well for intersection with CNV segments
-    print("Converting CNVs to PyRanges...")
-    sample_cnv_segments = dict()
+    sex_chroms = {"chrX", "X", "chrY", "Y"}
+    columns = [
+        "mutation_id",
+        "sample_id",
+        "ref_counts",
+        "alt_counts",
+        "major_cn",
+        "minor_cn",
+        "normal_cn",
+    ]
+    print(
+        "Converting CNVs and SNVs to PyRanges, joining, formatting and writing output..."
+    )
     for sample_id, row in sample_info.iterrows():
         # process CNV segments
         tempdf = pd.read_csv(
@@ -147,84 +149,34 @@ if __name__ == "__main__":
             columns={"chromosome": "Chromosome", "start": "Start", "end": "End"},
             inplace=True,
         )
-        sample_cnv_segments[sample_id] = PyRanges(tempdf)
+        sample_cnv_segments = PyRanges(tempdf)
 
-    # get all variants and depth info from both samples
-    sample_snvs = dict()
-    for sample_id, row in sample_info.iterrows():
         # process SNVs from VCF file
-        sample_snvs[sample_id] = read_muts_from_vcf(
-            row["somatic_vcf"], sample_id, row["normal_id"]
+        sample_snvs = read_muts_from_vcf(
+            row["somatic_vcf"], sample_id, row["normal_id"], ARGS.depth, ARGS.vaf
         )
 
-    # create a list of unique variant entries to fill in SNV counts with zeros
-    # i.e., PyClone-Vi requires that all samples have all variants listed even if the variant wasn't called in the
-    # given sample so we need to add those variants to a sample with values of zero to prevent it from pre-filtering
-    # them out and not using for analysis
-    var_set = set()  # makes unique set of variant tuples
-    for sample_variant_dict in sample_snvs.values():
-        var_set.update(sample_variant_dict.keys())
+        # join the CNV and SNV PyRanges for each sample (i.e. match overlapping CNV segment with a SNV)
+        # see https://github.com/Roth-Lab/pyclone-vi#input-format for description of the PyClone-VI format we are writing out
 
-    for variant_tuple in var_set:
-        for snv_dict in sample_snvs.values():
-            if variant_tuple not in snv_dict:
-                snv_dict[variant_tuple] = {
-                    "mutation_id": "_".join(variant_tuple),
-                    "ref_counts": 0,
-                    "alt_counts": 0,
-                    "Chromosome": variant_tuple[0],
-                    "Start": int(variant_tuple[1]),
-                    "End": int(variant_tuple[1]),
-                }
-
-    # filter out sites where all samples variant calls don't meet depth and vaf thresholds
-    for variant_tuple in var_set:
-        # keep in interesting variants if indicated by options regardless of depth
-        if ARGS.incvars and variant_tuple in INCLUDE_VARIANTS:
-            print(f"Skipping filtering {variant_tuple} out from variant list")
-            continue
-
-        passes_filter = False
-        for snv_dict in sample_snvs.values():
-            depth = int(snv_dict[variant_tuple]["ref_counts"]) + int(
-                snv_dict[variant_tuple]["alt_counts"]
-            )
-            if depth == 0:
-                continue
-
-            vaf = float(snv_dict[variant_tuple]["alt_counts"]) / float(depth)
-            if depth >= ARGS.depth and vaf >= ARGS.vaf:
-                passes_filter = True
-                break
-
-        if not passes_filter:
-            for snv_dict in sample_snvs.values():
-                del snv_dict[variant_tuple]
-
-    # join the CNV and SNV PyRanges for each sample (i.e. match overlapping CNV segment with a SNV)
-    # see https://github.com/Roth-Lab/pyclone-vi#input-format for description of the PyClone-VI format we are writing out
-    print("Joining CNV and SNV PyRanges for each sample and formatting columns...")
-    sample_overlaps = dict()
-    sex_chroms = {"chrX", "X", "chrY", "Y"}
-    mut_df = None
-    for sample, variants in sample_snvs.items():
-        # join the PyRanges, then just work with the Pandas dataframe
         joined_df = (
-            PyRanges(pd.DataFrame.from_dict(variants.values()))
-            .join(sample_cnv_segments[sample], suffix="_cnv")
+            PyRanges(pd.DataFrame.from_dict(sample_snvs))
+            .join(sample_cnv_segments, suffix="_cnv")
             .df
         )
         # drop chrY values b/c they confound analysis when cohort has a mix of males and females
-        # Get indexes where name column has value john
+        # Get indexes where name column has value
         indexNames = joined_df[
             (joined_df["Chromosome"] == "chrY") | (joined_df["Chromosome"] == "Y")
         ].index
         # Delete these row indexes from dataFrame
         joined_df.drop(indexNames, inplace=True)
+        # replace "_" with "-" in sample ID for easier sample info parsing downstream
+        sample_id = sample_id.replace("_", "-")
         # add the sample ID as a column
-        joined_df["sample_id"] = sample
+        joined_df["sample_id"] = sample_id
         # add normal copy number values, 2 if Female, 1 on sex chromosomes if Male
-        if sample_info.at[sample, "sex"] == "F":
+        if sample_info.at[sample_id, "sex"] == "F":
             joined_df["normal_cn"] = 2
         else:
             joined_df["normal_cn"] = joined_df.apply(
@@ -238,23 +190,13 @@ if __name__ == "__main__":
         joined_df["major_cn"] = joined_df["major_cn"].astype(int)
         joined_df["minor_cn"] = joined_df["minor_cn"].astype(int)
 
-        # append or setup results
-        if mut_df is None:
-            mut_df = joined_df
-        else:
-            mut_df = pd.concat([mut_df, joined_df], ignore_index=True)
+        # write results to output file
+        print(f"Writing output for {sample_id}...")
+        joined_df.to_csv(
+            Path(ARGS.output) / f"{sample_id}_merged_variant_info.tsv",
+            sep="\t",
+            index=False,
+            columns=columns,
+        )
 
-    print("Writing output...")
-    columns = [
-        "mutation_id",
-        "sample_id",
-        "ref_counts",
-        "alt_counts",
-        "major_cn",
-        "minor_cn",
-        "normal_cn",
-    ]
-    mut_df.sort_values(by=["mutation_id", "sample_id"], inplace=True)
-    mut_df.to_csv(ARGS.output, sep="\t", index=False, columns=columns)
-
-    print("Done. Outputs have been formatted and merged!")
+    print("Done. Outputs have been formatted!")
