@@ -58,7 +58,7 @@ for (cluster_tsv in cluster_files) {
   smp_id <- unlist(strsplit(base_tsv_name, "-"))[1]
   vaf_col_names <- grep("vaf", colnames(df), value = TRUE)
   sample_names <- gsub("vaf", smp_id, vaf_col_names)
-  sample_names <- gsub("NORM_VILLI", "Normal_Villi", sample_names)
+  sample_names <- gsub("NORM", "Normal_Villi", sample_names)
   sample_names <- gsub("CHORANGIOMA", "Chorangioma", sample_names)
   df[, sample_names] <- df[, vaf_col_names]
   vaf_col_names <- sample_names
