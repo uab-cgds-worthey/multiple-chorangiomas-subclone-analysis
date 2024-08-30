@@ -171,8 +171,6 @@ if __name__ == "__main__":
         ].index
         # Delete these row indexes from dataFrame
         joined_df.drop(indexNames, inplace=True)
-        # replace "_" with "-" in sample ID for easier sample info parsing downstream
-        sample_id = sample_id.replace("_", "-")
         # add the sample ID as a column
         joined_df["sample_id"] = sample_id
         # add normal copy number values, 2 if Female, 1 on sex chromosomes if Male
