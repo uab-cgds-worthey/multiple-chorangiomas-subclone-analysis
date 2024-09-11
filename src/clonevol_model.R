@@ -34,9 +34,18 @@ if (!dir.exists(args$output_dir)) dir.create(args$output_dir)
 cluster_files <- list.files(args$input_dir, pattern = ".+\\.tsv", full.names = TRUE) # nolint
 nonint_cols <- c("mutation_id", "cluster", "is_interesting", "gene")
 
+# define clone colors
+clone_colors <- NULL
+
 for (cluster_tsv in cluster_files) {
   base_tsv_name <- basename(cluster_tsv)
   cat("Generating models for ", base_tsv_name, "\n")
+  # determin colors for different models
+  if (grepl("CHORANGIOMA", base_tsv_name) && grepl("beta", base_tsv_name)) {
+    clone_colors <- c("#648FFF", "#009E73")
+  } else {
+    clone_colors <- c("#648FFF", "#CC79A7", "#009E73")
+  }
 
   df <- read.table(file = cluster_tsv, header = TRUE, sep = "\t")
 
@@ -62,9 +71,6 @@ for (cluster_tsv in cluster_files) {
   sample_names <- gsub("CHORANGIOMA", "Chorangioma", sample_names)
   df[, sample_names] <- df[, vaf_col_names]
   vaf_col_names <- sample_names
-
-  # define clone colors
-  clone_colors <- NULL
 
   # compute clonal models
   y <- infer.clonal.models(
