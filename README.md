@@ -1,4 +1,11 @@
-# PyClone-VI
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15467694.svg)](https://doi.org/10.5281/zenodo.15467694)
+
+# Multiple Chorangiomas Subclone construction from WGS
+
+Steps to process WGS somatic variants to predict clonal architecture of chorangiomas in a case of
+multiple chronagioma syndrome.
+
+# Clone prediction using PyClone-VI
 
 Installed following directions in https://github.com/Roth-Lab/pyclone-vi
 
